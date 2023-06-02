@@ -7,7 +7,5 @@ import (
 )
 
 func main() {
-	row := "Hello, OTUS!"
-	reversedRow := stringutil.Reverse(row)
-	fmt.Println(reversedRow)
+	fmt.Println(stringutil.Reverse("Hello, OTUS!"))
 }

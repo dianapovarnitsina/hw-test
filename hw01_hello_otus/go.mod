@@ -1,4 +1,4 @@
-module github.com/dianapovarnitsina/hw-test
+module github.com/dianapovarnitsina/hw-test/hw01_hello_otus
 
 go 1.19
 

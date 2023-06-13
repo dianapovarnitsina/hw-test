@@ -13,23 +13,23 @@ func Unpack(str string) (string, error) {
 	var prevChar string
 
 	for index, char := range str {
-		asciiToInteger, _ := strconv.Atoi(string(char))
-		if index == 0 && asciiToInteger > 0 {
+		charIsNumber, _ := strconv.Atoi(string(char))
+		if index == 0 && charIsNumber > 0 {
 			return "", ErrInvalidString
 		}
 
-		prevCharASCIIToInteger, _ := strconv.Atoi(prevChar)
-		if (prevCharASCIIToInteger > 0 && int(char) == 48) || (prevCharASCIIToInteger > 0 && asciiToInteger > 0) {
+		prevCharIsNumber, _ := strconv.Atoi(prevChar)
+		if (prevCharIsNumber > 0 && char == '0') || (prevCharIsNumber > 0 && charIsNumber > 0) {
 			return "", ErrInvalidString
 		}
 
-		if asciiToInteger > 0 {
-			builder.WriteString(strings.Repeat(prevChar, asciiToInteger-1))
+		if charIsNumber > 0 {
+			builder.WriteString(strings.Repeat(prevChar, charIsNumber-1))
 			prevChar = string(char)
 		}
 
-		if asciiToInteger == 0 {
-			if int(char) == 48 {
+		if charIsNumber == 0 {
+			if char == '0' {
 				s := builder.String()
 				result := s[:len(s)-1]
 				builder.Reset()

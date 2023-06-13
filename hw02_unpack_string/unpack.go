@@ -18,8 +18,8 @@ func Unpack(str string) (string, error) {
 			return "", ErrInvalidString
 		}
 
-		prevCharAsciiToInteger, _ := strconv.Atoi(prevChar)
-		if (prevCharAsciiToInteger > 0 && int(char) == 48) || (prevCharAsciiToInteger > 0 && asciiToInteger > 0) {
+		prevCharASCIIToInteger, _ := strconv.Atoi(prevChar)
+		if (prevCharASCIIToInteger > 0 && int(char) == 48) || (prevCharASCIIToInteger > 0 && asciiToInteger > 0) {
 			return "", ErrInvalidString
 		}
 

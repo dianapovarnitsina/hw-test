@@ -31,9 +31,10 @@ func Unpack(str string) (string, error) {
 		if charIsNumber == 0 {
 			if char == '0' {
 				s := builder.String()
-				result := s[:len(s)-1]
+				runes := []rune(s)
+				result := runes[:len(runes)-1]
 				builder.Reset()
-				builder.WriteString(result)
+				builder.WriteString(string(result))
 				prevChar = string(char)
 			} else {
 				prevChar = string(char)

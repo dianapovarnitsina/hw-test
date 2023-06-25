@@ -21,7 +21,7 @@ func Top10(text string) []string {
 			wordCount[word]++
 		}
 
-		//из мапы получить слова с максимальным количеством повторений 10 штук
+		// Из мапы получить слова с максимальным количеством повторений 10 штук
 		return getTopWords(wordCount, 10)
 	}
 }
@@ -41,7 +41,7 @@ func getTopWords(wordCount map[string]int, n int) []string {
 		i++
 	}
 
-	//сортировка лексикографически
+	// ортировка лексикографически
 	sort.Slice(pairs, func(i, j int) bool {
 		return pairs[i].word < pairs[j].word
 	})

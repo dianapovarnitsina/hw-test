@@ -6,28 +6,26 @@ import (
 )
 
 func Top10(text string) []string {
-
 	if text == "" {
-		return nil
-	} else {
-		// Разделение абзаца на слова
-		words := strings.Fields(text)
-
-		// Создание карты для подсчета повторений
-		wordCount := make(map[string]int)
-
-		// Подсчет повторений слов
-		for _, word := range words {
-			wordCount[word]++
-		}
-
-		// Из мапы получить слова с максимальным количеством повторений 10 штук
-		return getTopWords(wordCount, 10)
+		return make([]string, 0)
 	}
+
+	// Разделение абзаца на слова
+	words := strings.Fields(text)
+
+	// Создание карты для подсчета повторений
+	wordCount := make(map[string]int)
+
+	// Подсчет повторений слов
+	for _, word := range words {
+		wordCount[word]++
+	}
+
+	// Из мапы получить слова с максимальным количеством повторений 10 штук
+	return getTopWords(wordCount, 10)
 }
 
 func getTopWords(wordCount map[string]int, n int) []string {
-
 	type wordCountPair struct {
 		word  string
 		count int

@@ -39,13 +39,11 @@ func getTopWords(wordCount map[string]int, n int) []string {
 		i++
 	}
 
-	// Сортировка лексикографически
-	sort.Slice(pairs, func(i, j int) bool {
-		return pairs[i].word < pairs[j].word
-	})
+	sort.SliceStable(pairs, func(i, j int) bool {
+		if pairs[i].count == pairs[j].count {
+			return pairs[i].word < pairs[j].word
+		}
 
-	// Сортировка среза по убыванию частоты
-	sort.Slice(pairs, func(i, j int) bool {
 		return pairs[i].count > pairs[j].count
 	})
 

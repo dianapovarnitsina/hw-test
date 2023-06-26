@@ -21,7 +21,12 @@ func Top10(text string) []string {
 		wordCount[word]++
 	}
 
-	// Из мапы получить слова с максимальным количеством повторений 10 штук
+	// Из мапы получить слова с максимальным количеством повторений i штук (если передаваесый параграф меньше 10) или 10 штук
+	i := len(wordCount)
+	if i < 10 {
+		return getTopWords(wordCount, i)
+	}
+
 	return getTopWords(wordCount, 10)
 }
 

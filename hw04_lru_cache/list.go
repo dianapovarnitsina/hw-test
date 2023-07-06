@@ -1,4 +1,4 @@
-package main
+package hw04lrucache
 
 type List interface {
 	Len() int

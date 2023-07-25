@@ -6,8 +6,10 @@ import (
 	"sync/atomic"
 )
 
-var ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
-var ErrWorkersCount = errors.New("errors workers count <= 0")
+var (
+	ErrErrorsLimitExceeded = errors.New("errors limit exceeded")
+	ErrWorkersCount        = errors.New("errors workers count <= 0")
+)
 
 type Task func() error
 
@@ -21,7 +23,7 @@ func writeTasksToChannel(tasks []Task, taskCh chan<- Task) {
 func readChanel(taskCh <-chan Task, errorsCount *int32, m int) {
 	for {
 		taskValue, ok := <-taskCh
-		if ok == false {
+		if !ok {
 			return
 		}
 

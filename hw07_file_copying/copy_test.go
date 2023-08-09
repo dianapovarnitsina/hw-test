@@ -1,7 +1,68 @@
 package main
 
-import "testing"
+import (
+	"fmt"
+	"github.com/stretchr/testify/require"
+	"os"
+	"os/exec"
+	"testing"
+)
+
+const (
+	fromPath   = "testdata/input.txt"
+	toPath     = "testdata/tmp/output.txt"
+	checkPath  = "testdata/out_offset6000_limit1000.txt"
+	offsetTest = 6000
+	limitTest  = 1000
+)
 
 func TestCopy(t *testing.T) {
-	// Place your code here.
+
+	err := Copy(fromPath, toPath, offsetTest, limitTest)
+	if err != nil {
+		return
+	}
+
+	checkFile, err := os.Open(checkPath)
+	if err != nil {
+		return
+	}
+	defer checkFile.Close()
+	statCheck, err := checkFile.Stat()
+	if err != nil {
+		return
+	}
+
+	toFile, err := os.Open(toPath)
+	if err != nil {
+		return
+	}
+	defer toFile.Close()
+	statTo, err := toFile.Stat()
+	if err != nil {
+		return
+	}
+
+	require.Equal(t, statCheck.Size(), statTo.Size())
+
+	bufCheck := make([]byte, 1024)
+	_, err = checkFile.Read(bufCheck)
+	if err != nil {
+		return
+	}
+
+	bufTo := make([]byte, 1024)
+	_, err = toFile.Read(bufTo)
+	if err != nil {
+		return
+	}
+
+	require.Equal(t, bufCheck, bufTo)
+
+	cmd := exec.Command("rm", "-f", toPath)
+	err = cmd.Run()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 }

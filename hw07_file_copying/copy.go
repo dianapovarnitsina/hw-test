@@ -3,9 +3,10 @@ package main
 import (
 	"errors"
 	"fmt"
-	"github.com/cheggaaa/pb/v3"
 	"io"
 	"os"
+
+	"github.com/cheggaaa/pb/v3"
 )
 
 var (
@@ -14,7 +15,6 @@ var (
 )
 
 func Copy(fromPath, toPath string, offset, limit int64) error {
-
 	fileInfo, err := os.Stat(fromPath)
 	if err != nil {
 		return fmt.Errorf("could not get stat from file: %w", err)
@@ -42,9 +42,11 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 	var bufSize int64
 	if limit+offset > fileSize {
 		bufSize = fileSize - offset
-	} else if limit+offset <= fileSize && limit > 0 {
+	}
+	if limit+offset <= fileSize && limit > 0 {
 		bufSize = limit
-	} else if limit == 0 {
+	}
+	if limit == 0 {
 		bufSize = fileSize - offset
 	}
 

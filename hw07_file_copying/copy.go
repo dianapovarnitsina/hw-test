@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 
 	"github.com/cheggaaa/pb/v3"
 )
@@ -13,6 +14,17 @@ var (
 	ErrUnsupportedFile       = errors.New("unsupported file")
 	ErrOffsetExceedsFileSize = errors.New("offset exceeds file size")
 )
+
+func isSupportedFile(filename string) bool {
+	supportedExtensions := []string{".txt", ".rtf", ".doc"}
+	ext := filepath.Ext(filename)
+	for _, supportedExt := range supportedExtensions {
+		if ext == supportedExt {
+			return true
+		}
+	}
+	return false
+}
 
 func Copy(fromPath, toPath string, offset, limit int64) error {
 	fileInfo, err := os.Stat(fromPath)
@@ -23,6 +35,10 @@ func Copy(fromPath, toPath string, offset, limit int64) error {
 
 	if offset > fileSize {
 		return ErrOffsetExceedsFileSize
+	}
+
+	if !isSupportedFile(fromPath) {
+		return ErrUnsupportedFile
 	}
 
 	fileFrom, err := os.Open(fromPath)

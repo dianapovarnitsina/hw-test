@@ -10,7 +10,6 @@ import (
 
 type UserRole string
 
-// Test the function on different structures and other types.
 type (
 	User struct {
 		ID     string `json:"id" validate:"len:36"`

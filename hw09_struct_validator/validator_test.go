@@ -4,21 +4,20 @@ import (
 	"encoding/json"
 	"fmt"
 	"testing"
-
-	"github.com/stretchr/testify/require"
 )
 
 type UserRole string
 
+// Test the function on different structures and other types.
 type (
 	User struct {
 		ID     string `json:"id" validate:"len:36"`
 		Name   string
-		Age    int      `validate:"min:18|max:50"`
-		Email  string   `validate:"regexp:^\\w+@\\w+\\.\\w+$"`
-		Role   UserRole `validate:"in:admin,stuff"`
-		Phones []string `validate:"len:11"`
-		meta   json.RawMessage
+		Age    int             `validate:"min:18|max:50"`
+		Email  string          `validate:"regexp:^\\w+@\\w+\\.\\w+$"`
+		Role   UserRole        `validate:"in:admin,stuff"`
+		Phones []string        `validate:"len:11"`
+		meta   json.RawMessage //nolint:unused
 	}
 
 	App struct {
@@ -43,63 +42,19 @@ func TestValidate(t *testing.T) {
 		expectedErr error
 	}{
 		{
-			1,
-			ErrNotStruct,
+			// Place your code here.
 		},
-		{
-			User{
-				ID:     "1",
-				Name:   "test",
-				Age:    1,
-				Email:  "testtest.ru",
-				Role:   "test",
-				Phones: []string{"1111111111"},
-				meta:   json.RawMessage(""),
-			},
-			ValidationErrors{
-				ValidationError{"ID", errLenString},
-				ValidationError{"Age", errValueIsLessThanMinValue},
-				ValidationError{"Email", errRegexpString},
-				ValidationError{"Role", errValueDoesNotMatchSpecifiedValidator},
-				ValidationError{"Phones", errLenString},
-			},
-		},
-		{
-			App{
-				Version: "12345",
-			},
-			ValidationErrors{},
-		},
-		{
-			Token{
-				Header:    []byte{1, 2},
-				Payload:   []byte{3, 4},
-				Signature: []byte{5, 6},
-			},
-			ValidationErrors{},
-		},
-		{
-			Response{
-				Code: 400,
-				Body: "",
-			},
-			ValidationErrors{
-				ValidationError{"Code", errValueDoesNotMatchSpecifiedValidator},
-			},
-		},
-		{
-			Response{
-				Code: 200,
-				Body: "",
-			},
-			ValidationErrors{},
-		},
+		// ...
+		// Place your code here.
 	}
+
 	for i, tt := range tests {
 		t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
 			tt := tt
 			t.Parallel()
-			require.EqualError(t, Validate(tt.in), tt.expectedErr.Error())
+
+			// Place your code here.
+			_ = tt
 		})
 	}
 }

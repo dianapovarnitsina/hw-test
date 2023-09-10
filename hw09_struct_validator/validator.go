@@ -55,8 +55,8 @@ func Validate(v interface{}) error {
 			continue
 		}
 
-		switch xType.Type.Kind() {
-		case reflect.String:
+		switch xType.Type.String() {
+		case "string":
 			err := tagStringValidate(xValue.String(), tagValue)
 			if err != nil {
 				errSlice = append(errSlice, ValidationError{
@@ -64,8 +64,7 @@ func Validate(v interface{}) error {
 					Err:   err,
 				})
 			}
-		case reflect.Int, reflect.Int32, reflect.Int8, reflect.Int64, reflect.Int16,
-			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		case "int":
 			err := tagIntValidate(xValue.Interface().(int), tagValue)
 			if err != nil {
 				errSlice = append(errSlice, ValidationError{
@@ -73,27 +72,24 @@ func Validate(v interface{}) error {
 					Err:   err,
 				})
 			}
-		case reflect.Slice:
-			if xType.Type.String() == "[]int" {
-				for _, item := range xValue.Interface().([]int) {
-					err := tagIntValidate(item, tagValue)
-					if err != nil {
-						errSlice = append(errSlice, ValidationError{
-							Field: xType.Name,
-							Err:   err,
-						})
-					}
+		case "[]int":
+			for _, item := range xValue.Interface().([]int) {
+				err := tagIntValidate(item, tagValue)
+				if err != nil {
+					errSlice = append(errSlice, ValidationError{
+						Field: xType.Name,
+						Err:   err,
+					})
 				}
 			}
-			if xType.Type.String() == "[]string" {
-				for _, item := range xValue.Interface().([]string) {
-					err := tagStringValidate(item, tagValue)
-					if err != nil {
-						errSlice = append(errSlice, ValidationError{
-							Field: xType.Name,
-							Err:   err,
-						})
-					}
+		case "[]string":
+			for _, item := range xValue.Interface().([]string) {
+				err := tagStringValidate(item, tagValue)
+				if err != nil {
+					errSlice = append(errSlice, ValidationError{
+						Field: xType.Name,
+						Err:   err,
+					})
 				}
 			}
 		default:

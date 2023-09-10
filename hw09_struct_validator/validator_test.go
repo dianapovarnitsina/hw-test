@@ -87,20 +87,18 @@ func TestValidate(t *testing.T) {
 		t.Run(fmt.Sprintf("case %d", i), func(t *testing.T) {
 			tt := tt
 			t.Parallel()
+			var validationErr ValidationErrors
+
 			err := Validate(tt.in)
-			if validationErr, ok := err.(ValidationErrors); ok {
+			if errors.As(err, &validationErr) {
 				for _, e := range validationErr {
 					if e.Field == "Code" && !errors.Is(e.Err, tt.expectedErr) {
 						t.Errorf("Error: Expected: %v, but received: %v", tt.expectedErr, e.Err)
 					}
 				}
-			} else {
-				// Обработать случай, когда err - это одиночная ошибка, а не ValidationErrors.
-				if !errors.Is(err, tt.expectedErr) {
-					t.Errorf("Error: Expected: %v, but received: %v", tt.expectedErr, err)
-				}
+			} else if !errors.Is(err, tt.expectedErr) {
+				t.Errorf("Error: Expected: %v, but received: %v", tt.expectedErr, err)
 			}
-
 		})
 	}
 }

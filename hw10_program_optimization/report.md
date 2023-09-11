@@ -16,3 +16,8 @@ PASS
 
 ```
 
+```text
+$ go test -bench=. -cpuprofile=cpu.out -memprofile=mem.out .
+$ go tool pprof -http=":8090" cpu.out
+```
+

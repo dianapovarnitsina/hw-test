@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -10,9 +9,7 @@ import (
 	"time"
 )
 
-var (
-	timeout time.Duration
-)
+var timeout time.Duration
 
 func init() {
 	flag.DurationVar(&timeout, "timeout", time.Second*10, "connection timeout to host")
@@ -26,7 +23,7 @@ func main() {
 	}
 
 	address := net.JoinHostPort(flag.Args()[0], flag.Args()[1])
-	cl := NewTelnetClient(address, timeout, ioutil.NopCloser(os.Stdin), os.Stdout)
+	cl := NewTelnetClient(address, timeout, os.Stdin, os.Stdout)
 
 	log.Printf("...Connected to %s\n", address)
 

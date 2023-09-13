@@ -42,7 +42,7 @@ func TestValidate(t *testing.T) {
 	}{
 		{
 			1,
-			ErrNotStruct,
+			errNotStruct,
 		},
 		{
 			App{

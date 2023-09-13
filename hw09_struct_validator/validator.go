@@ -43,7 +43,7 @@ func Validate(v interface{}) error {
 	rType := reflect.TypeOf(v)
 	rValue := reflect.ValueOf(v)
 	if rType.Kind().String() != "struct" {
-		return ErrNotStruct
+		return errNotStruct
 	}
 
 	for i := 0; i < rType.NumField(); i++ {

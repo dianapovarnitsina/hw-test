@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	ErrNotStruct                           = fmt.Errorf(" variable not a struct")
+	errNotStruct                           = fmt.Errorf(" variable not a struct")
 	errNoRule                              = fmt.Errorf(" not find rule for tag validate")
 	errLenString                           = fmt.Errorf(" string length > or < validation values")
 	errRegexpString                        = fmt.Errorf(" the string does not match the specified Regexp")

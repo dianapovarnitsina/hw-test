@@ -2,25 +2,66 @@ package app
 
 import (
 	"context"
+	"time"
+
+	"github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/interfaces"
+	"github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/storage"
 )
 
-type App struct { // TODO
+type App struct {
+	logger  interfaces.Logger
+	storage interfaces.EventStorage
 }
 
-type Logger interface { // TODO
+func NewApp(logger interfaces.Logger, storage interfaces.EventStorage) *App {
+	return &App{
+		logger:  logger,
+		storage: storage,
+	}
 }
 
-type Storage interface { // TODO
+func (a *App) CreateEvent(ctx context.Context, id, title, description, userId string, duration, reminder int64) error {
+	event := &storage.Event{
+		ID:          id,
+		Title:       title,
+		DateTime:    time.Now(),
+		Duration:    duration,
+		Description: description,
+		UserID:      userId,
+		Reminder:    reminder,
+	}
+	return a.storage.CreateEvent(ctx, event)
 }
 
-func New(logger Logger, storage Storage) *App {
-	return &App{}
+func (a *App) UpdateEvent(ctx context.Context, id, title, description, userId string, duration, reminder int64) error {
+	event := &storage.Event{
+		ID:          id,
+		Title:       title,
+		DateTime:    time.Now(),
+		Duration:    duration,
+		Description: description,
+		UserID:      userId,
+		Reminder:    reminder,
+	}
+	return a.storage.UpdateEvent(ctx, event)
 }
 
-func (a *App) CreateEvent(ctx context.Context, id, title string) error {
-	// TODO
-	return nil
-	// return a.storage.CreateEvent(storage.Event{ID: id, Title: title})
+func (a *App) DeleteEvent(ctx context.Context, eventId string) error {
+	return a.storage.DeleteEvent(ctx, eventId)
 }
 
-// TODO
+func (a *App) GetEvent(ctx context.Context, eventId string) (*storage.Event, error) {
+	return a.storage.GetEvent(ctx, eventId)
+}
+
+func (a *App) ListEventsForDay(ctx context.Context, date time.Time) ([]*storage.Event, error) {
+	return a.storage.ListEventsForDay(ctx, date)
+}
+
+func (a *App) ListEventsForWeek(ctx context.Context, date time.Time) ([]*storage.Event, error) {
+	return a.storage.ListEventsForWeek(ctx, date)
+}
+
+func (a *App) ListEventsForMonth(ctx context.Context, date time.Time) ([]*storage.Event, error) {
+	return a.storage.ListEventsForWeek(ctx, date)
+}

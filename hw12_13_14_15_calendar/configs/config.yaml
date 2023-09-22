@@ -1,0 +1,17 @@
+logger:
+  level: DEBUG
+
+http:
+  host: "localhost"
+  port: 8080
+
+storage:
+  type: memory #memory / postgres
+  migration: "migrations" # 0
+
+database:
+  host: "localhost"
+  port: 5432
+  dbname: "postgres"
+  username: "postgres"
+  password: "postgres"

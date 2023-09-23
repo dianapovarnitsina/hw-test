@@ -3,13 +3,13 @@ package memorystorage
 import (
 	"context"
 	"fmt"
-	"github.com/stretchr/testify/assert"
 	"strconv"
 	"sync"
 	"testing"
 	"time"
 
 	stor "github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/storage"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCreateEvent(t *testing.T) {

@@ -135,7 +135,13 @@ func (s *Storage) ListEventsForMonth(ctx context.Context, startOfMonth time.Time
 	defer s.mu.RUnlock()
 
 	var eventsForMonth []*storage.Event
-	startOfMonth = time.Date(startOfMonth.Year(), startOfMonth.Month(), startOfMonth.Day(), 0, 0, 0, 0, startOfMonth.Location())
+	startOfMonth = time.Date(
+		startOfMonth.Year(),
+		startOfMonth.Month(),
+		startOfMonth.Day(),
+		0, 0, 0, 0,
+		startOfMonth.Location(),
+	)
 	endOfMonth := startOfMonth.AddDate(0, 1, 0).Add(-time.Nanosecond)
 
 	for _, event := range s.events {

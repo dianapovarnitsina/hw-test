@@ -40,12 +40,12 @@ func (s *Storage) CreateEvent(ctx context.Context, event *storage.Event) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	// Проверка наличия события с таким ID
+	// Checking for an event with this ID
 	if _, found := s.events[event.ID]; found {
 		return storage.ErrEventAlreadyExists
 	}
 
-	// Добавляем событие
+	// Adding an event
 	s.events[event.ID] = event
 	return nil
 }
@@ -55,12 +55,12 @@ func (s *Storage) UpdateEvent(ctx context.Context, event *storage.Event) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	// Проверка наличия события с таким ID
+	// Checking for an event with this ID
 	if _, found := s.events[event.ID]; !found {
 		return storage.ErrEventNotFound
 	}
 
-	// Обновляем событие
+	// Updating the event
 	s.events[event.ID] = event
 	return nil
 }
@@ -70,12 +70,12 @@ func (s *Storage) DeleteEvent(ctx context.Context, eventID string) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	// Проверка наличия события с таким ID
+	// Checking for an event with this ID
 	if _, found := s.events[eventID]; !found {
 		return storage.ErrEventNotFound
 	}
 
-	// Удаляем событие
+	// Deleting the event
 	delete(s.events, eventID)
 	return nil
 }

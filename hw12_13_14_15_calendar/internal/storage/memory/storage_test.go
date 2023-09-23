@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/stretchr/testify/assert"
+	"strconv"
+	"sync"
 	"testing"
 	"time"
 
@@ -194,4 +196,223 @@ func TestListEventsForMonth(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Len(t, noEvents, 0)
 	fmt.Println()
+}
+
+func TestConcurrentCreateEvent(t *testing.T) {
+	storage := New()
+	var wg sync.WaitGroup
+	numOperations := 10
+
+	for i := 0; i < numOperations; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			event := &stor.Event{
+				ID:       strconv.Itoa(i),
+				Title:    fmt.Sprintf("Event %d", i),
+				DateTime: time.Now(),
+			}
+			err := storage.CreateEvent(context.Background(), event)
+			assert.NoError(t, err)
+		}(i)
+	}
+
+	wg.Wait()
+
+	// Check that all events were created
+	for i := 0; i < numOperations; i++ {
+		eventID := strconv.Itoa(i)
+		event, err := storage.GetEvent(context.Background(), eventID)
+		assert.NoError(t, err)
+		assert.NotNil(t, event)
+	}
+}
+
+func TestConcurrentUpdateEvent(t *testing.T) {
+	storage := New()
+	event := &stor.Event{
+		ID:       "1",
+		Title:    "Initial Title",
+		DateTime: time.Now(),
+	}
+	err := storage.CreateEvent(context.Background(), event)
+	assert.NoError(t, err)
+
+	var wg sync.WaitGroup
+	numOperations := 10
+
+	for i := 0; i < numOperations; i++ {
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			event := &stor.Event{
+				ID:       "1",
+				Title:    fmt.Sprintf("Updated Title %d", i),
+				DateTime: time.Now(),
+			}
+			err := storage.UpdateEvent(context.Background(), event)
+			assert.NoError(t, err)
+		}(i)
+	}
+
+	wg.Wait()
+
+	// Check that the event was updated
+	updatedEvent, err := storage.GetEvent(context.Background(), "1")
+	assert.NoError(t, err)
+	assert.NotNil(t, updatedEvent)
+	assert.Contains(t, updatedEvent.Title, "Updated Title")
+}
+
+func TestConcurrentDeleteEvent(t *testing.T) {
+	storage := New()
+	event := &stor.Event{
+		ID:       "1",
+		Title:    "Event to delete",
+		DateTime: time.Now(),
+	}
+	err := storage.CreateEvent(context.Background(), event)
+	assert.NoError(t, err)
+
+	// Try to delete the event concurrently
+	var wg sync.WaitGroup
+	numOperations := 10
+
+	// Channel to collect errors
+	errCh := make(chan error, numOperations)
+
+	for i := 0; i < numOperations; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			err := storage.DeleteEvent(context.Background(), "1")
+			errCh <- err
+		}()
+	}
+
+	wg.Wait()
+	close(errCh)
+
+	// Count successful deletions
+	successCount := 0
+
+	for err := range errCh {
+		if err == nil {
+			successCount++
+		}
+	}
+
+	// Only one deletion should succeed, the others should return error
+	assert.Equal(t, 1, successCount)
+
+	// Check that the event was deleted only once
+	deletedEvent, err := storage.GetEvent(context.Background(), "1")
+	assert.Error(t, err) // Event should not exist
+	assert.Nil(t, deletedEvent)
+}
+
+func TestConcurrentListEventsForDay(t *testing.T) {
+	storage := New()
+
+	// Create some events
+	event1 := &stor.Event{ID: "1", DateTime: time.Now()}
+	event2 := &stor.Event{ID: "2", DateTime: time.Now()}
+	_ = storage.CreateEvent(context.Background(), event1)
+	_ = storage.CreateEvent(context.Background(), event2)
+
+	// Concurrently list events for the day
+	var wg sync.WaitGroup
+	numOperations := 10
+
+	// Channel to collect events
+	eventsCh := make(chan []*stor.Event, numOperations)
+
+	for i := 0; i < numOperations; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			events, _ := storage.ListEventsForDay(context.Background(), time.Now())
+			eventsCh <- events
+		}()
+	}
+
+	wg.Wait()
+	close(eventsCh)
+
+	// Collect events from the channel
+	eventsList := [][]*stor.Event{}
+	for events := range eventsCh {
+		eventsList = append(eventsList, events)
+	}
+
+	// Compare the events
+	for i := 1; i < len(eventsList); i++ {
+		assert.ElementsMatch(t, eventsList[0], eventsList[i])
+	}
+}
+
+func TestConcurrentListEventsForWeek(t *testing.T) {
+	storage := New()
+
+	// Create some events
+	event1 := &stor.Event{ID: "1", DateTime: time.Now()}
+	event2 := &stor.Event{ID: "2", DateTime: time.Now()}
+	_ = storage.CreateEvent(context.Background(), event1)
+	_ = storage.CreateEvent(context.Background(), event2)
+
+	// Concurrently list events for the week
+	var wg sync.WaitGroup
+	numOperations := 10
+
+	// Create a slice to store the results
+	results := make([][]*stor.Event, numOperations)
+
+	for i := 0; i < numOperations; i++ {
+		wg.Add(1)
+		go func(index int) {
+			defer wg.Done()
+			events, _ := storage.ListEventsForWeek(context.Background(), time.Now())
+			results[index] = events
+		}(i)
+	}
+
+	wg.Wait()
+
+	// Compare the events
+	for i := 1; i < len(results); i++ {
+		assert.ElementsMatch(t, results[0], results[i])
+	}
+}
+
+func TestConcurrentListEventsForMonth(t *testing.T) {
+	storage := New()
+
+	// Create some events
+	event1 := &stor.Event{ID: "1", DateTime: time.Now()}
+	event2 := &stor.Event{ID: "2", DateTime: time.Now()}
+	_ = storage.CreateEvent(context.Background(), event1)
+	_ = storage.CreateEvent(context.Background(), event2)
+
+	// Concurrently list events for the month
+	var wg sync.WaitGroup
+	numOperations := 10
+
+	// Create a slice to store the results
+	results := make([][]*stor.Event, numOperations)
+
+	for i := 0; i < numOperations; i++ {
+		wg.Add(1)
+		go func(index int) {
+			defer wg.Done()
+			events, _ := storage.ListEventsForMonth(context.Background(), time.Now())
+			results[index] = events
+		}(i)
+	}
+
+	wg.Wait()
+
+	// Compare the events
+	for i := 1; i < len(results); i++ {
+		assert.ElementsMatch(t, results[0], results[i])
+	}
 }

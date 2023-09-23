@@ -2,7 +2,8 @@ package config
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"io"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -26,7 +27,13 @@ func ReadConfig(file string) (*Config, error) {
 }
 
 func readJSON(file string) (*Config, error) {
-	data, err := ioutil.ReadFile(file)
+	f, err := os.Open(file)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to open config file")
+	}
+	defer f.Close()
+
+	data, err := io.ReadAll(f)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read config file")
 	}
@@ -40,7 +47,13 @@ func readJSON(file string) (*Config, error) {
 }
 
 func readYAML(file string) (*Config, error) {
-	data, err := ioutil.ReadFile(file)
+	f, err := os.Open(file)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to open config file")
+	}
+	defer f.Close()
+
+	data, err := io.ReadAll(f)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read config file")
 	}
@@ -54,7 +67,13 @@ func readYAML(file string) (*Config, error) {
 }
 
 func readTOML(file string) (*Config, error) {
-	data, err := ioutil.ReadFile(file)
+	f, err := os.Open(file)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to open config file")
+	}
+	defer f.Close()
+
+	data, err := io.ReadAll(f)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read config file")
 	}

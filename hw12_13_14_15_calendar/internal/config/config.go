@@ -2,9 +2,9 @@ package config
 
 type Config struct {
 	Logger   LoggerConf   `json:"logger"`
-	FilePath string       `json:"file_path"`
+	FilePath string       `json:"file_path"` //nolint:tagliatelle
 	Database DataBaseConf `json:"database"`
-	Http     HTTPConf     `json:"http"`
+	HTTP     HTTPConf     `json:"http"`
 	Storage  StorageConf  `json:"storage"`
 }
 
@@ -35,7 +35,7 @@ func NewConfig() Config {
 		Logger:   LoggerConf{},
 		FilePath: "",
 		Database: DataBaseConf{},
-		Http:     HTTPConf{},
+		HTTP:     HTTPConf{},
 	}
 }
 
@@ -53,9 +53,4 @@ func (c *Config) SetDataBase(host string, port int, dbname string, username stri
 	c.Database.Dbname = dbname
 	c.Database.Username = username
 	c.Database.Password = password
-}
-
-func (c *Config) setHttp(host string, port uint16) {
-	c.Http.Host = host
-	c.Http.Port = port
 }

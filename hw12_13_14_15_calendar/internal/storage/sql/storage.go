@@ -8,7 +8,7 @@ import (
 
 	"github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/config"
 	"github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/storage"
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" // Blank import for side effects
 	"github.com/pressly/goose/v3"
 )
 
@@ -16,28 +16,28 @@ type Storage struct {
 	db *sql.DB
 }
 
-func (r *Storage) Migrate(ctx context.Context, migrate string) (err error) {
-
+func (s *Storage) Migrate(ctx context.Context, migrate string) (err error) {
+	_ = ctx
 	if err := goose.SetDialect("postgres"); err != nil {
 		return fmt.Errorf("cannot set dialect: %w", err)
 	}
 
-	if err := goose.Up(r.db, migrate); err != nil {
+	if err := goose.Up(s.db, migrate); err != nil {
 		return fmt.Errorf("cannot do up migration: %w", err)
 	}
 
 	return nil
 }
 
-func (r *Storage) Connect(ctx context.Context, conf *config.Config) (err error) {
+func (s *Storage) Connect(ctx context.Context, conf *config.Config) (err error) {
 	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		conf.Database.Host, conf.Database.Port, conf.Database.Username, conf.Database.Password, conf.Database.Dbname)
-	r.db, err = sql.Open("postgres", dsn)
+	s.db, err = sql.Open("postgres", dsn)
 	if err != nil {
 		return fmt.Errorf("cannot open pgx driver: %w", err)
 	}
 
-	return r.db.PingContext(ctx)
+	return s.db.PingContext(ctx)
 }
 
 func (s *Storage) Close() error {
@@ -45,7 +45,7 @@ func (s *Storage) Close() error {
 }
 
 func (s *Storage) CreateEvent(ctx context.Context, event *storage.Event) error {
-	query := `
+	const query = `
 		INSERT INTO events (id, title, date_time, duration, description, user_id, reminder)
 		VALUES ($1, $2, $3, $4, $5, $6, $7)
 	`
@@ -61,7 +61,6 @@ func (s *Storage) CreateEvent(ctx context.Context, event *storage.Event) error {
 		event.UserID,
 		event.Reminder,
 	)
-
 	if err != nil {
 		return err
 	}
@@ -69,7 +68,7 @@ func (s *Storage) CreateEvent(ctx context.Context, event *storage.Event) error {
 }
 
 func (s *Storage) UpdateEvent(ctx context.Context, event *storage.Event) error {
-	query := `
+	const query = `
 		UPDATE events
 		SET title = $2, date_time = $3, duration = $4, description = $5, user_id = $6, reminder = $7
 		WHERE id = $1
@@ -86,7 +85,6 @@ func (s *Storage) UpdateEvent(ctx context.Context, event *storage.Event) error {
 		event.UserID,
 		event.Reminder,
 	)
-
 	if err != nil {
 		return err
 	}
@@ -95,7 +93,7 @@ func (s *Storage) UpdateEvent(ctx context.Context, event *storage.Event) error {
 }
 
 func (s *Storage) DeleteEvent(ctx context.Context, eventID string) error {
-	query := `
+	const query = `
 		DELETE FROM events
 		WHERE id = $1
 	`
@@ -109,7 +107,7 @@ func (s *Storage) DeleteEvent(ctx context.Context, eventID string) error {
 }
 
 func (s *Storage) GetEvent(ctx context.Context, eventID string) (*storage.Event, error) {
-	query := `
+	const query = `
 		SELECT id, title, date_time, duration, description, user_id, reminder
 		FROM events
 		WHERE id = $1
@@ -119,8 +117,16 @@ func (s *Storage) GetEvent(ctx context.Context, eventID string) (*storage.Event,
 
 	event := &storage.Event{}
 
-	// Сканируем значения из результата запроса в объект события
-	err := row.Scan(&event.ID, &event.Title, &event.DateTime, &event.Duration, &event.Description, &event.UserID, &event.Reminder)
+	// Scanning values from the query result to the event object
+	err := row.Scan(
+		&event.ID,
+		&event.Title,
+		&event.DateTime,
+		&event.Duration,
+		&event.Description,
+		&event.UserID,
+		&event.Reminder,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -132,7 +138,7 @@ func (s *Storage) ListEventsForDay(ctx context.Context, date time.Time) ([]*stor
 	startOfDay := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
 	endOfDay := startOfDay.Add(24 * time.Hour)
 
-	query := `
+	const query = `
 		SELECT id, title, date_time, duration, description, user_id, reminder
 		FROM events
 		WHERE date_time >= $1 AND date_time < $2
@@ -146,10 +152,18 @@ func (s *Storage) ListEventsForDay(ctx context.Context, date time.Time) ([]*stor
 
 	events := []*storage.Event{}
 
-	// Итерируемся по результатам запроса и создаем объекты событий
+	// Iterate on the results of the query and create event objects
 	for rows.Next() {
 		event := &storage.Event{}
-		err := rows.Scan(&event.ID, &event.Title, &event.DateTime, &event.Duration, &event.Description, &event.UserID, &event.Reminder)
+		err := rows.Scan(
+			&event.ID,
+			&event.Title,
+			&event.DateTime,
+			&event.Duration,
+			&event.Description,
+			&event.UserID,
+			&event.Reminder,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -163,7 +177,7 @@ func (s *Storage) ListEventsForWeek(ctx context.Context, startOfWeek time.Time) 
 	startOfWeek = time.Date(startOfWeek.Year(), startOfWeek.Month(), startOfWeek.Day(), 0, 0, 0, 0, startOfWeek.Location())
 	endOfWeek := startOfWeek.AddDate(0, 0, 6)
 
-	query := `
+	const query = `
 		SELECT id, title, date_time, duration, description, user_id, reminder
 		FROM events
 		WHERE date_time >= $1 AND date_time < $2
@@ -177,10 +191,18 @@ func (s *Storage) ListEventsForWeek(ctx context.Context, startOfWeek time.Time) 
 
 	events := []*storage.Event{}
 
-	// Итерируемся по результатам запроса и создаем объекты событий
+	// Iterate on the results of the query and create event objects
 	for rows.Next() {
 		event := &storage.Event{}
-		err := rows.Scan(&event.ID, &event.Title, &event.DateTime, &event.Duration, &event.Description, &event.UserID, &event.Reminder)
+		err := rows.Scan(
+			&event.ID,
+			&event.Title,
+			&event.DateTime,
+			&event.Duration,
+			&event.Description,
+			&event.UserID,
+			&event.Reminder,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -200,7 +222,7 @@ func (s *Storage) ListEventsForMonth(ctx context.Context, startOfMonth time.Time
 	)
 	endOfMonth := startOfMonth.AddDate(0, 1, 0).Add(-time.Nanosecond)
 
-	query := `
+	const query = `
 		SELECT id, title, date_time, duration, description, user_id, reminder
 		FROM events
 		WHERE date_time >= $1 AND date_time < $2
@@ -214,10 +236,18 @@ func (s *Storage) ListEventsForMonth(ctx context.Context, startOfMonth time.Time
 
 	events := []*storage.Event{}
 
-	// Итерируемся по результатам запроса и создаем объекты событий
+	// Iterate on the results of the query and create event objects
 	for rows.Next() {
 		event := &storage.Event{}
-		err := rows.Scan(&event.ID, &event.Title, &event.DateTime, &event.Duration, &event.Description, &event.UserID, &event.Reminder)
+		err := rows.Scan(
+			&event.ID,
+			&event.Title,
+			&event.DateTime,
+			&event.Duration,
+			&event.Description,
+			&event.UserID,
+			&event.Reminder,
+		)
 		if err != nil {
 			return nil, err
 		}

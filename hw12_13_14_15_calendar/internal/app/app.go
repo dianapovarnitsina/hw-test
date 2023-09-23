@@ -20,38 +20,38 @@ func NewApp(logger interfaces.Logger, storage interfaces.EventStorage) *App {
 	}
 }
 
-func (a *App) CreateEvent(ctx context.Context, id, title, description, userId string, duration, reminder int64) error {
+func (a *App) CreateEvent(ctx context.Context, id, title, description, userID string, duration, reminder int64) error {
 	event := &storage.Event{
 		ID:          id,
 		Title:       title,
 		DateTime:    time.Now(),
 		Duration:    duration,
 		Description: description,
-		UserID:      userId,
+		UserID:      userID,
 		Reminder:    reminder,
 	}
 	return a.storage.CreateEvent(ctx, event)
 }
 
-func (a *App) UpdateEvent(ctx context.Context, id, title, description, userId string, duration, reminder int64) error {
+func (a *App) UpdateEvent(ctx context.Context, id, title, description, userID string, duration, reminder int64) error {
 	event := &storage.Event{
 		ID:          id,
 		Title:       title,
 		DateTime:    time.Now(),
 		Duration:    duration,
 		Description: description,
-		UserID:      userId,
+		UserID:      userID,
 		Reminder:    reminder,
 	}
 	return a.storage.UpdateEvent(ctx, event)
 }
 
-func (a *App) DeleteEvent(ctx context.Context, eventId string) error {
-	return a.storage.DeleteEvent(ctx, eventId)
+func (a *App) DeleteEvent(ctx context.Context, eventID string) error {
+	return a.storage.DeleteEvent(ctx, eventID)
 }
 
-func (a *App) GetEvent(ctx context.Context, eventId string) (*storage.Event, error) {
-	return a.storage.GetEvent(ctx, eventId)
+func (a *App) GetEvent(ctx context.Context, eventID string) (*storage.Event, error) {
+	return a.storage.GetEvent(ctx, eventID)
 }
 
 func (a *App) ListEventsForDay(ctx context.Context, date time.Time) ([]*storage.Event, error) {

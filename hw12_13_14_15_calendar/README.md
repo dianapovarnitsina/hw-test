@@ -18,6 +18,8 @@
 ./calendar --config=/configs/config.toml
 ./calendar version
 
+в среде разработки в аргементах указывать --config=configs/config.toml
+
 
 Создание Docker контейнера с PostgreSQL:
 docker run -d --name pg -e POSTGRES_PASSWORD=password -p 5432:5432 postgres

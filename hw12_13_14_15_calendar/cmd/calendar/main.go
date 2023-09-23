@@ -26,7 +26,6 @@ func init() {
 }
 
 func mainImpl() error {
-
 	ctx := context.TODO()
 
 	flag.Parse()
@@ -36,12 +35,12 @@ func mainImpl() error {
 		return fmt.Errorf("version")
 	}
 	if configFile == "" {
-		return fmt.Errorf("Please set: '--config=<Path to configuration file>'")
+		return fmt.Errorf("please set: '--config=<Path to configuration file>'")
 	}
 
 	conf, err := config.ReadConfig(configFile)
 	if err != nil {
-		return fmt.Errorf("cannot read config: %v", err)
+		return fmt.Errorf("cannot read config: %w", err)
 	}
 
 	var storage interfaces.EventStorage
@@ -49,10 +48,10 @@ func mainImpl() error {
 	if conf.Storage.Type == "postgres" {
 		storage = new(sql.Storage)
 		if err := storage.Connect(ctx, conf); err != nil {
-			return fmt.Errorf("cannot connect to psql: %v", err)
+			return fmt.Errorf("cannot connect to psql: %w", err)
 		}
 
-		err := storage.Migrate(ctx, conf.Storage.Migration) //TODO разобраться почему миграция не накатывается
+		err := storage.Migrate(ctx, conf.Storage.Migration)
 		if err != nil {
 			return fmt.Errorf("migration did not work out")
 		}
@@ -66,12 +65,10 @@ func mainImpl() error {
 		storage = memorystorage.New()
 	}
 
-	//логер
 	logg := logger.New(conf.Logger.Level, os.Stdout)
 
-	//приложение
 	calendar := app.NewApp(logg, storage)
-	server := internalhttp.NewServer(conf.Http.Host, conf.Http.Port, logg, calendar)
+	server := internalhttp.NewServer(conf.HTTP.Host, conf.HTTP.Port, logg, calendar)
 
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer cancel()

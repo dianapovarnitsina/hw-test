@@ -99,7 +99,7 @@ func (s *Storage) ListEventsForDay(ctx context.Context, day time.Time) ([]*stora
 	defer s.mu.RUnlock()
 
 	var eventsForDay []*storage.Event
-	startOfDay := time.Date(day.Year(), day.Month(), day.Day(), 0, 0, 0, 0, day.Location())
+	startOfDay := day.Add(-time.Second)
 	endOfDay := startOfDay.Add(24 * time.Hour)
 
 	for _, event := range s.events {
@@ -117,7 +117,7 @@ func (s *Storage) ListEventsForWeek(ctx context.Context, startOfWeek time.Time) 
 	defer s.mu.RUnlock()
 
 	var eventsForWeek []*storage.Event
-	startOfWeek = time.Date(startOfWeek.Year(), startOfWeek.Month(), startOfWeek.Day(), 0, 0, 0, 0, startOfWeek.Location())
+	startOfWeek = startOfWeek.Add(-time.Second)
 	endOfWeek := startOfWeek.AddDate(0, 0, 6)
 
 	for _, event := range s.events {
@@ -135,13 +135,7 @@ func (s *Storage) ListEventsForMonth(ctx context.Context, startOfMonth time.Time
 	defer s.mu.RUnlock()
 
 	var eventsForMonth []*storage.Event
-	startOfMonth = time.Date(
-		startOfMonth.Year(),
-		startOfMonth.Month(),
-		startOfMonth.Day(),
-		0, 0, 0, 0,
-		startOfMonth.Location(),
-	)
+	startOfMonth = startOfMonth.Add(-time.Second)
 	endOfMonth := startOfMonth.AddDate(0, 1, 0).Add(-time.Nanosecond)
 
 	for _, event := range s.events {

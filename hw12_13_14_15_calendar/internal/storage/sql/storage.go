@@ -134,8 +134,8 @@ func (s *Storage) GetEvent(ctx context.Context, eventID string) (*storage.Event,
 	return event, nil
 }
 
-func (s *Storage) ListEventsForDay(ctx context.Context, date time.Time) ([]*storage.Event, error) {
-	startOfDay := time.Date(date.Year(), date.Month(), date.Day(), 0, 0, 0, 0, date.Location())
+func (s *Storage) ListEventsForDay(ctx context.Context, day time.Time) ([]*storage.Event, error) {
+	startOfDay := day.Add(-time.Second)
 	endOfDay := startOfDay.Add(24 * time.Hour)
 
 	const query = `
@@ -174,7 +174,7 @@ func (s *Storage) ListEventsForDay(ctx context.Context, date time.Time) ([]*stor
 }
 
 func (s *Storage) ListEventsForWeek(ctx context.Context, startOfWeek time.Time) ([]*storage.Event, error) {
-	startOfWeek = time.Date(startOfWeek.Year(), startOfWeek.Month(), startOfWeek.Day(), 0, 0, 0, 0, startOfWeek.Location())
+	startOfWeek = startOfWeek.Add(-time.Second)
 	endOfWeek := startOfWeek.AddDate(0, 0, 6)
 
 	const query = `
@@ -213,13 +213,7 @@ func (s *Storage) ListEventsForWeek(ctx context.Context, startOfWeek time.Time) 
 }
 
 func (s *Storage) ListEventsForMonth(ctx context.Context, startOfMonth time.Time) ([]*storage.Event, error) {
-	startOfMonth = time.Date(
-		startOfMonth.Year(),
-		startOfMonth.Month(),
-		startOfMonth.Day(),
-		0, 0, 0, 0,
-		startOfMonth.Location(),
-	)
+	startOfMonth = startOfMonth.Add(-time.Second)
 	endOfMonth := startOfMonth.AddDate(0, 1, 0).Add(-time.Nanosecond)
 
 	const query = `

@@ -62,8 +62,6 @@ goose create events_and_notifications sql
 
 
 golangci-lint run
-
-
 ```
 
 

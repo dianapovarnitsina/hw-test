@@ -7,7 +7,7 @@ import (
 	"github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/interfaces"
 )
 
-func middleware(wrappedHandler http.Handler, logger interfaces.Logger) http.Handler {
+func middleware(wrappedHandler http.Handler, logger interfaces.Logger) http.Handler { //nolint:unused
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		StartAt := time.Now()
 		lrw := NewLoggingResponseWriter(w)

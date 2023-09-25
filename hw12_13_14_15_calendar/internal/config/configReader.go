@@ -27,13 +27,7 @@ func ReadConfig(file string) (*Config, error) {
 }
 
 func readJSON(file string) (*Config, error) {
-	f, err := os.Open(file)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to open config file")
-	}
-	defer f.Close()
-
-	data, err := io.ReadAll(f)
+	data, err := readConfig(file)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read config file")
 	}
@@ -47,13 +41,7 @@ func readJSON(file string) (*Config, error) {
 }
 
 func readYAML(file string) (*Config, error) {
-	f, err := os.Open(file)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to open config file")
-	}
-	defer f.Close()
-
-	data, err := io.ReadAll(f)
+	data, err := readConfig(file)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read config file")
 	}
@@ -67,21 +55,27 @@ func readYAML(file string) (*Config, error) {
 }
 
 func readTOML(file string) (*Config, error) {
-	f, err := os.Open(file)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to open config file")
-	}
-	defer f.Close()
-
-	data, err := io.ReadAll(f)
+	data, err := readConfig(file)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read config file")
 	}
-
 	var config Config
 	if err := toml.Unmarshal(data, &config); err != nil {
 		return nil, errors.Wrap(err, "failed to unmarshal TOML config")
 	}
 
 	return &config, nil
+}
+
+func readConfig(file string) ([]byte, error) {
+	f, err := os.Open(file)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to open config file")
+	}
+	defer f.Close()
+	data, err := io.ReadAll(f)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to read config file")
+	}
+	return data, nil
 }

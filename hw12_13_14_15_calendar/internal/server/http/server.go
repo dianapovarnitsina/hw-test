@@ -29,6 +29,7 @@ func NewServer(host string, port uint16, logger interfaces.Logger, app interface
 func (s *Server) Start(ctx context.Context) error {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/hello", s.helloHandler)
+	mux.HandleFunc("/", s.helloHandler)
 
 	s.server = &http.Server{
 		Addr:              fmt.Sprintf("%s:%d", s.host, s.port),

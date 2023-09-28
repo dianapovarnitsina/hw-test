@@ -11,3 +11,58 @@
 - `hw15_calendar` (от `hw14_calendar`) -> Merge Request в `hw14_calendar` (если уже вмержена, то в `master`)
 
 **Домашнее задание не принимается, если не принято ДЗ, предшедствующее ему.**
+
+
+### Заметки:
+```text
+./calendar --config=/configs/config.toml
+./calendar version
+
+в среде разработки в аргементах указывать --config=configs/config.toml
+
+
+Создание Docker контейнера с PostgreSQL:
+docker run -d --name pg -e POSTGRES_PASSWORD=password -p 5432:5432 postgres
+docker run -d --name pg -e POSTGRES_PASSWORD=postgres -e PGDATA=/var/lib/postgresql/data/pgdata -v pg_data:/var/lib/postgresql/data -p 5432:5432 postgres
+
+
+Проверка работы PostgreSQL:
+psql -h localhost -p 5432 -U postgres -d postgres
+Далее нужно ввести пароль, который установили при запуске контейнера.
+
+Остановка и удаление контейнера:
+docker stop pg
+docker rm pg
+
+
+Подключиться к БД
+docker exec -it pg psql -Upostgres -dpostgres
+
+
+Создание БД, создание пользователя и выдача прав:
+create database exampledb; 
+create user otus_user with encrypted password 'otus_password'; 
+grant all privileges on database exampledb to otus_user;
+
+
+DROP TABLE notifications;
+DROP TABLE events;
+select * from events;
+select * from notifications;
+\d events
+
+Выполнение sql скрипта:
+psql 'host=localhost user=postgres password=postgres dbname=postgres' < 20230921223047_events_and_notifications.sql
+
+
+установить goose
+go install github.com/pressly/goose/v3/cmd/goose@latest
+goose --version
+goose create events_and_notifications sql
+
+
+golangci-lint run
+```
+
+
+

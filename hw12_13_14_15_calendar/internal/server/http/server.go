@@ -57,5 +57,6 @@ func (s *Server) Stop(ctx context.Context) error {
 }
 
 func (s *Server) helloHandler(w http.ResponseWriter, r *http.Request) {
+	_ = r
 	fmt.Fprintln(w, "Hello, World!")
 }

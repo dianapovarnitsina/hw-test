@@ -13,20 +13,22 @@ func middleware(wrappedHandler http.Handler, logger interfaces.Logger) http.Hand
 		lrw := NewLoggingResponseWriter(w)
 		wrappedHandler.ServeHTTP(lrw, r)
 		a := struct {
-			StatusCode      int
-			UserAgent       string
 			ClientIPAddress string
+			StartAt         time.Time
 			HTTPMethod      string
 			HTTPVersion     string
-			StartAt         time.Time
+			Query           string
+			StatusCode      int
+			UserAgent       string
 			Latency         time.Duration
 		}{
-			StatusCode:      lrw.StatusCode,
-			UserAgent:       r.UserAgent(),
 			ClientIPAddress: r.RemoteAddr,
+			StartAt:         StartAt,
 			HTTPMethod:      r.Method,
 			HTTPVersion:     r.Proto,
-			StartAt:         StartAt,
+			Query:           r.URL.Query().Get("q"),
+			StatusCode:      lrw.StatusCode,
+			UserAgent:       r.UserAgent(),
 			Latency:         time.Since(StartAt),
 		}
 		logger.Info("%+v", a)

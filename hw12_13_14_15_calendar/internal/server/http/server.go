@@ -161,6 +161,44 @@ func (s *Server) deleteEventHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) listEventsHandler(w http.ResponseWriter, r *http.Request) {
-	_ = r
-	fmt.Fprintln(w, "list events")
+	var events []*storage.Event
+	var err error
+
+	queryParams := r.URL.Query()
+	if dayParam, ok := queryParams["day"]; ok {
+		dayStr := dayParam[0]
+		day, err := time.Parse("2006-01-02", dayStr)
+		if err != nil {
+			http.Error(w, "Invalid date format", http.StatusBadRequest)
+			return
+		}
+		events, err = s.app.ListEventsForDay(r.Context(), day)
+	} else if weekParam, ok := queryParams["week"]; ok {
+		weekStr := weekParam[0]
+		week, err := time.Parse("2006-01-02", weekStr)
+		if err != nil {
+			http.Error(w, "Invalid date format", http.StatusBadRequest)
+			return
+		}
+		events, err = s.app.ListEventsForWeek(r.Context(), week)
+	} else if monthParam, ok := queryParams["month"]; ok {
+		monthStr := monthParam[0]
+		month, err := time.Parse("2006-01-02", monthStr)
+		if err != nil {
+			http.Error(w, "Invalid date format", http.StatusBadRequest)
+			return
+		}
+		events, err = s.app.ListEventsForMonth(r.Context(), month)
+	} else {
+		http.Error(w, "Invalid query", http.StatusBadRequest)
+		return
+	}
+
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(events)
 }

@@ -18,6 +18,7 @@ func middleware(wrappedHandler http.Handler, logger interfaces.Logger) http.Hand
 			HTTPMethod      string
 			HTTPVersion     string
 			Query           string
+			RequestURI      string
 			StatusCode      int
 			UserAgent       string
 			Latency         time.Duration
@@ -27,6 +28,7 @@ func middleware(wrappedHandler http.Handler, logger interfaces.Logger) http.Hand
 			HTTPMethod:      r.Method,
 			HTTPVersion:     r.Proto,
 			Query:           r.URL.Query().Get("q"),
+			RequestURI:      r.RequestURI,
 			StatusCode:      lrw.StatusCode,
 			UserAgent:       r.UserAgent(),
 			Latency:         time.Since(StartAt),

@@ -20,29 +20,11 @@ func NewApp(logger interfaces.Logger, storage interfaces.EventStorage) *App {
 	}
 }
 
-func (a *App) CreateEvent(ctx context.Context, id, title, description, userID string, duration, reminder int64) error {
-	event := &storage.Event{
-		ID:          id,
-		Title:       title,
-		DateTime:    time.Now(),
-		Duration:    duration,
-		Description: description,
-		UserID:      userID,
-		Reminder:    reminder,
-	}
+func (a *App) CreateEvent(ctx context.Context, event *storage.Event) error {
 	return a.storage.CreateEvent(ctx, event)
 }
 
-func (a *App) UpdateEvent(ctx context.Context, id, title, description, userID string, duration, reminder int64) error {
-	event := &storage.Event{
-		ID:          id,
-		Title:       title,
-		DateTime:    time.Now(),
-		Duration:    duration,
-		Description: description,
-		UserID:      userID,
-		Reminder:    reminder,
-	}
+func (a *App) UpdateEvent(ctx context.Context, event *storage.Event) error {
 	return a.storage.UpdateEvent(ctx, event)
 }
 

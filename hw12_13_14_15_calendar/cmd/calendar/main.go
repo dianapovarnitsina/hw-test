@@ -4,8 +4,6 @@ import (
 	"context"
 	"flag"
 	"fmt"
-	memorystorage "github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/storage/memory"
-	sql "github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/storage/sql"
 	"log"
 	"net"
 	"os"
@@ -20,6 +18,8 @@ import (
 	internalgrpc "github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/server/grpc"
 	internalhttp "github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/server/http"
 	"github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/server/pb"
+	memorystorage "github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/storage/memory"
+	sql "github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/storage/sql"
 	"google.golang.org/grpc"
 )
 

@@ -165,31 +165,36 @@ func (s *Server) listEventsHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
 
 	queryParams := r.URL.Query()
-	if dayParam, ok := queryParams["day"]; ok {
-		dayStr := dayParam[0]
-		day, err := time.Parse("2006-01-02", dayStr)
-		if err != nil {
+
+	switch {
+	case len(queryParams["day"]) > 0:
+		dayStr := queryParams["day"][0]
+		day, parseErr := time.Parse("2006-01-02", dayStr)
+		if parseErr != nil {
 			http.Error(w, "Invalid date format", http.StatusBadRequest)
 			return
 		}
 		events, err = s.app.ListEventsForDay(r.Context(), day)
-	} else if weekParam, ok := queryParams["week"]; ok {
-		weekStr := weekParam[0]
-		week, err := time.Parse("2006-01-02", weekStr)
-		if err != nil {
+
+	case len(queryParams["week"]) > 0:
+		weekStr := queryParams["week"][0]
+		week, parseErr := time.Parse("2006-01-02", weekStr)
+		if parseErr != nil {
 			http.Error(w, "Invalid date format", http.StatusBadRequest)
 			return
 		}
 		events, err = s.app.ListEventsForWeek(r.Context(), week)
-	} else if monthParam, ok := queryParams["month"]; ok {
-		monthStr := monthParam[0]
-		month, err := time.Parse("2006-01-02", monthStr)
-		if err != nil {
+
+	case len(queryParams["month"]) > 0:
+		monthStr := queryParams["month"][0]
+		month, parseErr := time.Parse("2006-01-02", monthStr)
+		if parseErr != nil {
 			http.Error(w, "Invalid date format", http.StatusBadRequest)
 			return
 		}
 		events, err = s.app.ListEventsForMonth(r.Context(), month)
-	} else {
+
+	default:
 		http.Error(w, "Invalid query", http.StatusBadRequest)
 		return
 	}

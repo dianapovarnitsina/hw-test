@@ -1,0 +1,239 @@
+{
+	"info": {
+		"_postman_id": "286b3520-b89b-48aa-ae83-afc8e9ba0ab9",
+		"name": "New Collection",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "6542270",
+		"_collection_link": "https://billingtwo.postman.co/workspace/dev~e1e862d5-3731-4254-904e-15a7a244be95/collection/6542270-286b3520-b89b-48aa-ae83-afc8e9ba0ab9?action=share&source=collection_link&creator=6542270"
+	},
+	"item": [
+		{
+			"name": "/hello",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/hello",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"hello"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/event/create",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": \"1234567893\",\n  \"title\": \"Meeting\",\n  \"date_time\": \"2023-10-07T15:30:00Z\",\n  \"duration\": 120,\n  \"description\": \"Team meeting\",\n  \"user_id\": \"user123\",\n  \"reminder\": 15\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/event/create",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"event",
+						"create"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/event/{id}",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/event/1234567893",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"event",
+						"1234567893"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/event/{id}",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": \"1234567893\",\n  \"title\": \"Updated Event Title 3\",\n  \"date_time\": \"2023-10-10T15:30:00Z\",\n  \"duration\": 60,\n  \"description\": \"Updated Event Description\",\n  \"user_id\": \"user123\",\n  \"reminder\": 15\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/event/1234567893",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"event",
+						"1234567893"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/event/{id}",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/event/1234567893",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"event",
+						"1234567893"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/events?day={time}",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": \"1234567893\",\n  \"title\": \"Updated Event Title 3\",\n  \"date_time\": \"2023-10-10T15:30:00Z\",\n  \"duration\": 60,\n  \"description\": \"Updated Event Description\",\n  \"user_id\": \"user123\",\n  \"reminder\": 15\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/events?day=2023-10-08",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"events"
+					],
+					"query": [
+						{
+							"key": "day",
+							"value": "2023-10-08"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/events?week={time}",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": \"1234567893\",\n  \"title\": \"Updated Event Title 3\",\n  \"date_time\": \"2023-10-10T15:30:00Z\",\n  \"duration\": 60,\n  \"description\": \"Updated Event Description\",\n  \"user_id\": \"user123\",\n  \"reminder\": 15\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/events?week=2023-10-08",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"events"
+					],
+					"query": [
+						{
+							"key": "week",
+							"value": "2023-10-08"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/events?month={time}",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"id\": \"1234567893\",\n  \"title\": \"Updated Event Title 3\",\n  \"date_time\": \"2023-10-10T15:30:00Z\",\n  \"duration\": 60,\n  \"description\": \"Updated Event Description\",\n  \"user_id\": \"user123\",\n  \"reminder\": 15\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/events?month=2023-10-08",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"events"
+					],
+					"query": [
+						{
+							"key": "month",
+							"value": "2023-10-08"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}

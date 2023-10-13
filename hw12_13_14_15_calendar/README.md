@@ -64,5 +64,9 @@ goose create events_and_notifications sql
 golangci-lint run
 ```
 
+В папку docs положила коллекцию для postman и для grpc добавила в docs/for_grpc.md json объектов.
+
+
+
 
 

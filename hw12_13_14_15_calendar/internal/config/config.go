@@ -4,7 +4,7 @@ type Config struct {
 	Logger   LoggerConf   `json:"logger"`
 	FilePath string       `json:"file_path"` //nolint:tagliatelle
 	Database DataBaseConf `json:"database"`
-	HTTP     HTTPConf     `json:"http"`
+	Net      NetConf      `json:"http"`
 	Storage  StorageConf  `json:"storage"`
 }
 
@@ -25,7 +25,8 @@ type DataBaseConf struct {
 	Password string `json:"password"`
 }
 
-type HTTPConf struct {
+type NetConf struct {
+	API  string `json:"api"`
 	Host string `json:"host"`
 	Port uint16 `json:"port"`
 }
@@ -35,7 +36,7 @@ func NewConfig() Config {
 		Logger:   LoggerConf{},
 		FilePath: "",
 		Database: DataBaseConf{},
-		HTTP:     HTTPConf{},
+		Net:      NetConf{},
 	}
 }
 

@@ -29,7 +29,7 @@ func (s *Storage) Migrate(ctx context.Context, migrate string) (err error) {
 	return nil
 }
 
-func (s *Storage) Connect(ctx context.Context, conf *config.Config) (err error) {
+func (s *Storage) Connect(ctx context.Context, conf *config.CalendarConfig) (err error) {
 	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
 		conf.Database.Host, conf.Database.Port, conf.Database.Username, conf.Database.Password, conf.Database.Dbname)
 	s.db, err = sql.Open("postgres", dsn)

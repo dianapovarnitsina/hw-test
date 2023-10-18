@@ -12,7 +12,7 @@ import (
 	"time"
 
 	"github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/interfaces"
-	"github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/app"
+	"github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/app/calendar"
 	config "github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/config"
 	"github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/logger"
 	internalgrpc "github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/server/grpc"
@@ -23,10 +23,18 @@ import (
 	"google.golang.org/grpc"
 )
 
-var configFile string
+var calendarConfigFile string
+
+//var senderConfigFile string
 
 func init() {
-	flag.StringVar(&configFile, "config", "", "Path to configuration file")
+	flag.StringVar(&calendarConfigFile, "calendar_config", "", "Path to configuration file")
+}
+
+func main() {
+	if err := mainImpl(); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func mainImpl() error {
@@ -38,28 +46,25 @@ func mainImpl() error {
 		printVersion()
 		return fmt.Errorf("version")
 	}
-	if configFile == "" {
-		return fmt.Errorf("please set: '--config=<Path to configuration file>'")
-	}
 
-	conf, err := config.ReadConfig(configFile)
+	if calendarConfigFile == "" {
+		return fmt.Errorf("please set: '--calendar_config=<Path to configuration file>'")
+	}
+	conf, err := config.ReadConfig(calendarConfigFile)
 	if err != nil {
 		return fmt.Errorf("cannot read config: %w", err)
 	}
 
 	var storage interfaces.EventStorage
-
 	if conf.Storage.Type == "postgres" {
 		storage = new(sql.Storage)
 		if err := storage.Connect(ctx, conf); err != nil {
 			return fmt.Errorf("cannot connect to psql: %w", err)
 		}
-
 		err := storage.Migrate(ctx, conf.Storage.Migration)
 		if err != nil {
 			return fmt.Errorf("migration did not work out")
 		}
-
 		defer func() {
 			if err := storage.Close(); err != nil {
 				log.Println("cannot close psql connection", err)
@@ -70,7 +75,7 @@ func mainImpl() error {
 	}
 
 	logg := logger.New(conf.Logger.Level, os.Stdout)
-	calendar := app.NewApp(logg, storage)
+	calendar := calendar.NewApp(logg, storage)
 
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
 	defer cancel()
@@ -88,7 +93,7 @@ func mainImpl() error {
 	return nil
 }
 
-func startGRPC(ctx context.Context, conf config.Config, logg *logger.Logger, storage interfaces.EventStorage) error {
+func startGRPC(ctx context.Context, conf config.CalendarConfig, logg *logger.Logger, storage interfaces.EventStorage) error {
 	server := grpc.NewServer(
 		grpc.UnaryInterceptor(internalgrpc.NewLoggingInterceptor(logg).UnaryServerInterceptor),
 	)
@@ -118,7 +123,7 @@ func startGRPC(ctx context.Context, conf config.Config, logg *logger.Logger, sto
 	return nil
 }
 
-func startHTTP(ctx context.Context, conf config.Config, logg *logger.Logger, calendar *app.App) error {
+func startHTTP(ctx context.Context, conf config.CalendarConfig, logg *logger.Logger, calendar *calendar.App) error {
 	server := internalhttp.NewServer(conf.Net.Host, conf.Net.Port, logg, calendar)
 
 	go func() {
@@ -139,10 +144,4 @@ func startHTTP(ctx context.Context, conf config.Config, logg *logger.Logger, cal
 		return err
 	}
 	return nil
-}
-
-func main() {
-	if err := mainImpl(); err != nil {
-		log.Fatal(err)
-	}
 }

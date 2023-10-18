@@ -21,7 +21,7 @@ func New() *Storage {
 	}
 }
 
-func (s *Storage) Connect(ctx context.Context, conf *config.Config) error {
+func (s *Storage) Connect(ctx context.Context, conf *config.CalendarConfig) error {
 	_, _ = ctx, conf
 	return nil
 }

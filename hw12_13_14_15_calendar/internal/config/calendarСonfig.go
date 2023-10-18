@@ -1,6 +1,6 @@
 package config
 
-type Config struct {
+type CalendarConfig struct {
 	Logger   LoggerConf   `json:"logger"`
 	FilePath string       `json:"file_path"` //nolint:tagliatelle
 	Database DataBaseConf `json:"database"`
@@ -31,8 +31,8 @@ type NetConf struct {
 	Port uint16 `json:"port"`
 }
 
-func NewConfig() Config {
-	return Config{
+func NewCalendarConfig() CalendarConfig {
+	return CalendarConfig{
 		Logger:   LoggerConf{},
 		FilePath: "",
 		Database: DataBaseConf{},
@@ -40,15 +40,15 @@ func NewConfig() Config {
 	}
 }
 
-func (c *Config) SetFilePath(path string) {
+func (c *CalendarConfig) SetFilePath(path string) {
 	c.FilePath = path
 }
 
-func (c *Config) SetLogLevel(level string) {
+func (c *CalendarConfig) SetLogLevel(level string) {
 	c.Logger.Level = level
 }
 
-func (c *Config) SetDataBase(host string, port int, dbname string, username string, password string) {
+func (c *CalendarConfig) SetDataBase(host string, port int, dbname string, username string, password string) {
 	c.Database.Host = host
 	c.Database.Port = port
 	c.Database.Dbname = dbname

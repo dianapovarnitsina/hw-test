@@ -8,9 +8,9 @@
 выбирая события о которых нужно напомнить:
     - при запуске процесс должен подключаться к RabbitMQ и создавать все необходимые структуры
     (топики и пр.) в ней;
-    - процесс должен выбирать сообытия для которых следует отправить уведомление (у события есть соотв. поле),
+    - процесс должен выбирать события для которых следует отправить уведомление (у события есть соотв. поле),
     создавать для каждого Уведомление (описание сущности см. в [ТЗ](./CALENDAR.MD)),
-    сериализовать его (например, в JSON) и складывать в очередь;
+    стерилизовать его (например, в JSON) и складывать в очередь;
     - процесс должен очищать старые (произошедшие более 1 года назад) события.
 * создать процесс Рассыльщик (`sender`), который читает сообщения из очереди и шлёт уведомления;
 непосредственно отправку делать не нужно - достаточно логировать сообщения / выводить в STDOUT.
@@ -30,6 +30,11 @@
 ./calendar           --config=/path/to/calendar_config.yaml
 ./calendar_scheduler --config=/path/to/scheduler_config.yaml
 ./calendar_sender    --config=/path/to/sender_config.yaml
+```
+
+```text
+	//flag.StringVar(&schedulerConfigFile, "scheduler_config", "", "Path to configuration file")
+	//flag.StringVar(&senderConfigFile, "sender_config", "", "Path to configuration file")
 ```
 
 После запуска RabbitMQ и PostgreSQL процессы `calendar_scheduler` и `calendar_sender`

@@ -12,7 +12,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func ReadConfig(file string) (*Config, error) {
+func ReadConfig(file string) (*CalendarConfig, error) {
 	ext := filepath.Ext(file)
 	switch strings.ToLower(ext) {
 	case ".json":
@@ -26,13 +26,13 @@ func ReadConfig(file string) (*Config, error) {
 	}
 }
 
-func readJSON(file string) (*Config, error) {
+func readJSON(file string) (*CalendarConfig, error) {
 	data, err := readConfig(file)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read config file")
 	}
 
-	var config Config
+	var config CalendarConfig
 	if err := json.Unmarshal(data, &config); err != nil {
 		return nil, errors.Wrap(err, "failed to unmarshal config")
 	}
@@ -40,13 +40,13 @@ func readJSON(file string) (*Config, error) {
 	return &config, nil
 }
 
-func readYAML(file string) (*Config, error) {
+func readYAML(file string) (*CalendarConfig, error) {
 	data, err := readConfig(file)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read config file")
 	}
 
-	var config Config
+	var config CalendarConfig
 	if err := yaml.Unmarshal(data, &config); err != nil {
 		return nil, errors.Wrap(err, "failed to unmarshal YAML config")
 	}
@@ -54,12 +54,12 @@ func readYAML(file string) (*Config, error) {
 	return &config, nil
 }
 
-func readTOML(file string) (*Config, error) {
+func readTOML(file string) (*CalendarConfig, error) {
 	data, err := readConfig(file)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to read config file")
 	}
-	var config Config
+	var config CalendarConfig
 	if err := toml.Unmarshal(data, &config); err != nil {
 		return nil, errors.Wrap(err, "failed to unmarshal TOML config")
 	}

@@ -9,6 +9,7 @@ import (
 
 	"github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/app/calendar"
 	config "github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/config"
+	"github.com/pkg/errors"
 )
 
 var calendarConfigFile string
@@ -34,11 +35,12 @@ func mainImpl() error {
 	}
 
 	if calendarConfigFile == "" {
-		return fmt.Errorf("please set: '--calendar_config=<Path to configuration file>'")
+		return fmt.Errorf("please set: '--config=<Path to configuration file>'")
 	}
-	conf, err := config.ReadConfig(calendarConfigFile)
-	if err != nil {
-		return fmt.Errorf("cannot read config: %w", err)
+
+	conf := new(config.CalendarConfig)
+	if err := conf.Init(calendarConfigFile); err != nil {
+		return errors.Wrap(err, "init config failed")
 	}
 
 	var wg sync.WaitGroup

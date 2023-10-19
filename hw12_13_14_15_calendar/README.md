@@ -19,9 +19,9 @@
 ./calendar version
 
 для запуска указать:
-./calendar           --calendar_config=configs/calendar_config.toml
-./calendar_scheduler --scheduler_config=configs/scheduler_config.yaml
-./calendar_sender    --sender_config=configs/sender_config.yaml
+./calendar           --config=configs/calendar_config.toml
+./calendar_scheduler --config=configs/scheduler_config.yaml
+./calendar_sender    --config=configs/sender_config.yaml
 
 
 Создание Docker контейнера с PostgreSQL:

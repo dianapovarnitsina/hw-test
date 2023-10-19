@@ -4,7 +4,8 @@ type CalendarConfig struct {
 	Logger   LoggerConf   `json:"logger"`
 	FilePath string       `json:"file_path"` //nolint:tagliatelle
 	Database DataBaseConf `json:"database"`
-	Net      NetConf      `json:"http"`
+	HTTP     HTTP         `json:"http"`
+	GRPC     GRPC         `json:"grpc"`
 	Storage  StorageConf  `json:"storage"`
 }
 
@@ -25,10 +26,14 @@ type DataBaseConf struct {
 	Password string `json:"password"`
 }
 
-type NetConf struct {
-	API  string `json:"api"`
+type HTTP struct {
 	Host string `json:"host"`
-	Port uint16 `json:"port"`
+	Port int    `json:"port"`
+}
+
+type GRPC struct {
+	Host string `json:"host"`
+	Port int    `json:"port"`
 }
 
 func NewCalendarConfig() CalendarConfig {
@@ -36,7 +41,8 @@ func NewCalendarConfig() CalendarConfig {
 		Logger:   LoggerConf{},
 		FilePath: "",
 		Database: DataBaseConf{},
-		Net:      NetConf{},
+		HTTP:     HTTP{},
+		GRPC:     GRPC{},
 	}
 }
 

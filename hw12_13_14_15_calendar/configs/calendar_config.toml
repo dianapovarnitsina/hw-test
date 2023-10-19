@@ -1,10 +1,13 @@
 [logger]
     level = "DEBUG"
 
-[net]
-    api = "grpc" #http / grpc
+[http]
     host = "localhost"
     port = 8080
+
+[grpc]
+    host = "localhost"
+    port = 8082
 
 [storage]
     type ="postgres" #memory / postgres

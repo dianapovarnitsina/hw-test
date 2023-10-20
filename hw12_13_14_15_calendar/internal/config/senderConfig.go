@@ -8,12 +8,12 @@ var _ Configure = (*SenderConfig)(nil)
 
 type SenderConfig struct {
 	Logger   LoggerConf   `json:"logger"`
+	Storage  StorageConf  `json:"storage"`
 	Database DataBaseConf `json:"database"`
 	RMQ      RMQ          `json:"rmq"`
 
 	Queues struct {
-		Events  Queue `json:"events"`
-		Senders Queue `json:"senders"`
+		Events Queue `json:"events"`
 	}
 
 	Consumer struct {

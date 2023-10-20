@@ -15,11 +15,6 @@ type SchedulerConfig struct {
 	Queues struct {
 		Events Queue
 	}
-
-	Producer struct {
-		CheckEventsToPublishInterval string // Интервал проверки событий для публикации.
-		CheckOldEventsInterval       string // Интервал для проверки старых событий на удаление.
-	}
 }
 
 func (c *SchedulerConfig) Init(file string) error {

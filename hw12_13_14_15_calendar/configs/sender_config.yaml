@@ -1,3 +1,17 @@
+logger:
+  level: DEBUG
+
+storage:
+  type: postgres #memory / postgres
+  migration: "migrations" # 0
+
+database:
+  host: "localhost"
+  port: 5432
+  dbname: "postgres"
+  username: "postgres"
+  password: "postgres"
+
 rmq:
   uri: "amqp://guest:guest@localhost:5672/"
   reConnect:
@@ -12,23 +26,8 @@ queues:
     exchangeType: "fanout"
     queueName: "notifications"
     bindingKey: ""
-  senders:
-    exchangeName: "stats"
-    exchangeType: "fanout"
-    queueName: "senders"
-    bindingKey: ""
 
 consumer:
   consumerTag: "calendar_notifications_sender"
   qosPrefetchCount: 10
   threads: 4
-
-database:
-  host: "localhost"
-  port: 5432
-  dbname: "postgres"
-  username: "postgres"
-  password: "postgres"
-
-logger:
-  level: DEBUG

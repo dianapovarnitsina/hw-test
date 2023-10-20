@@ -54,6 +54,7 @@ func NewSchedulerApp(ctx context.Context, conf *config.SchedulerConfig) (*AppSch
 	}
 	app.storage = eventStorage
 
+	// Инициализация RMQ.
 	eventsProdMq, err := rmq.New(
 		conf.RMQ.URI,
 		conf.Queues.Events.ExchangeName,
@@ -66,11 +67,11 @@ func NewSchedulerApp(ctx context.Context, conf *config.SchedulerConfig) (*AppSch
 		conf.RMQ.ReConnect.MaxInterval,
 	)
 	if err != nil {
-		return nil, fmt.Errorf("can't initialize rmq for events-producer: %w", err)
+		return nil, fmt.Errorf("failed to initialize RMQ for scheduler: %w", err)
 	}
 
 	if err := eventsProdMq.Init(ctx); err != nil {
-		logger.Error("RMQ failed: %v", err)
+		logger.Error("RMQ initialization failed: %v", err)
 	}
 
 	// Горутина для отправки уведомлений
@@ -114,7 +115,7 @@ func NewSchedulerApp(ctx context.Context, conf *config.SchedulerConfig) (*AppSch
 						logger.Error("Failed to publish notification to RMQ:  %v", err)
 						continue
 					}
-					fmt.Println("отправили уведомление", time.Now().Format("2006-01-02 15:04"))
+					logger.Info("Send a message: %s %s", string(notificationJSON), time.Now().Format("2006-01-02 15:04"))
 				}
 			}
 		}
@@ -134,7 +135,6 @@ func selectEventsForNotifications(ctx context.Context, app *AppScheduler) ([]*st
 
 func deleteOldEvents(ctx context.Context, app *AppScheduler) error {
 	return app.storage.DeleteOldEvents(ctx)
-
 }
 
 func createNotification(event *storage.Event) storage.Notification {

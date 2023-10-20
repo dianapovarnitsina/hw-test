@@ -22,7 +22,7 @@ func main() {
 }
 
 func mainImpl() error {
-	//ctx := context.TODO()
+	// ctx := context.TODO()
 	flag.Parse()
 
 	if senderConfigFile == "" {

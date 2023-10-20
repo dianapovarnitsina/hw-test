@@ -17,6 +17,10 @@ producer:
   checkEventsToPublishInterval: "5s"
   checkOldEventsInterval: "20s"
 
+storage:
+  type: postgres #memory / postgres
+  migration: "migrations" # 0
+
 database:
   host: "localhost"
   port: 5432

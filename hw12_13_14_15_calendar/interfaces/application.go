@@ -15,4 +15,5 @@ type Application interface {
 	ListEventsForDay(ctx context.Context, startOfDay time.Time) ([]*storage.Event, error)
 	ListEventsForWeek(ctx context.Context, startOfWeek time.Time) ([]*storage.Event, error)
 	ListEventsForMonth(ctx context.Context, startOfMonth time.Time) ([]*storage.Event, error)
+	SelectEventsForNotifications(ctx context.Context) ([]*storage.Event, error)
 }

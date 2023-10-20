@@ -10,7 +10,7 @@ grpc:
   port: 8082
 
 storage:
-  type: memory #memory / postgres
+  type: postgres #memory / postgres
   migration: "migrations" # 0
 
 database:

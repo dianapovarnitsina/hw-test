@@ -8,11 +8,14 @@ import (
 	"sync"
 
 	"github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/app/calendar"
-	config "github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/config"
+	"github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/config"
 	"github.com/pkg/errors"
 )
 
-var calendarConfigFile string
+var (
+	calendarConfigFile string
+	wg                 sync.WaitGroup
+)
 
 func init() {
 	flag.StringVar(&calendarConfigFile, "config", "calendar_config.toml", "Path to configuration file")
@@ -43,12 +46,10 @@ func mainImpl() error {
 		return errors.Wrap(err, "init config failed")
 	}
 
-	var wg sync.WaitGroup
-
 	// Создание и инициализация приложения
 	app, err := calendar.NewApp(ctx, conf)
 	if err != nil {
-		return fmt.Errorf("failed to create app: %w", err)
+		return fmt.Errorf("failed to create calendarApp: %w", err)
 	}
 
 	// Увеличиваем счетчик WaitGroup на 2, так как у нас два сервера

@@ -65,10 +65,12 @@ goose create events_and_notifications sql
 
 
 golangci-lint run
+golangci-lint run --fix
 
 
 Запустить rabbitmq:
 $ docker run -d --name rb -p 15672:15672 -p 5672:5672 rabbitmq:3-management 
+docker rm <идентификатор>
 
 Админка rabbitmq:
 http://localhost:15672/ guest:guest

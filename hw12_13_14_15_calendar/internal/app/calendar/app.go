@@ -39,7 +39,14 @@ func NewApp(ctx context.Context, conf *config.CalendarConfig) (*App, error) {
 	var eventStorage interfaces.EventStorage
 	if conf.Storage.Type == "postgres" {
 		psqlStorage := new(sql.Storage)
-		if err := psqlStorage.Connect(ctx, conf); err != nil {
+		if err := psqlStorage.Connect(
+			ctx,
+			conf.Database.Port,
+			conf.Database.Host,
+			conf.Database.Username,
+			conf.Database.Password,
+			conf.Database.Dbname,
+		); err != nil {
 			return nil, fmt.Errorf("cannot connect to PostgreSQL: %w", err)
 		}
 		err := psqlStorage.Migrate(ctx, conf.Storage.Migration)
@@ -62,7 +69,7 @@ func NewApp(ctx context.Context, conf *config.CalendarConfig) (*App, error) {
 		close(app.httpShutdown) // Отправляем сигнал о завершении работы HTTP сервера.
 	}()
 
-	// Инициализация gRPC-сервера
+	// Инициализация gRPC-сервера.
 	app.serverGRPC = grpc.NewServer(
 		grpc.UnaryInterceptor(internalgrpc.NewLoggingInterceptor(logger).UnaryServerInterceptor),
 	)

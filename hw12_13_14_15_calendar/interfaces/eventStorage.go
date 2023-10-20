@@ -19,4 +19,5 @@ type EventStorage interface {
 	ListEventsForWeek(ctx context.Context, startOfWeek time.Time) ([]*storage.Event, error)
 	ListEventsForMonth(ctx context.Context, startOfMonth time.Time) ([]*storage.Event, error)
 	SelectEventsForNotifications(ctx context.Context) ([]*storage.Event, error)
+	DeleteOldEvents(ctx context.Context) error
 }

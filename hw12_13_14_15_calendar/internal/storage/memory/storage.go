@@ -151,3 +151,9 @@ func (s *Storage) SelectEventsForNotifications(ctx context.Context) ([]*storage.
 	_ = ctx
 	return nil, nil
 }
+
+func (s *Storage) DeleteOldEvents(ctx context.Context) error {
+	// TODO
+	_ = ctx
+	return nil
+}

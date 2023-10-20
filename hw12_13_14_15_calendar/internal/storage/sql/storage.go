@@ -92,10 +92,7 @@ func (s *Storage) UpdateEvent(ctx context.Context, event *storage.Event) error {
 }
 
 func (s *Storage) DeleteEvent(ctx context.Context, eventID string) error {
-	const query = `
-		DELETE FROM events
-		WHERE id = $1
-	`
+	const query = `DELETE FROM events WHERE id = $1`
 
 	_, err := s.db.ExecContext(ctx, query, eventID)
 	if err != nil {
@@ -287,4 +284,15 @@ func (s *Storage) SelectEventsForNotifications(ctx context.Context) ([]*storage.
 	}
 
 	return events, nil
+}
+
+func (s *Storage) DeleteOldEvents(ctx context.Context) error {
+	const query = `DELETE FROM events WHERE date_time < NOW() - INTERVAL '1 year';`
+
+	_, err := s.db.ExecContext(ctx, query)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

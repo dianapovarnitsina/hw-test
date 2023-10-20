@@ -85,6 +85,12 @@ func NewSchedulerApp(ctx context.Context, conf *config.SchedulerConfig) (*AppSch
 				return // Если контекст отменен, завершаем горутину.
 			case <-ticker.C: // Если таймер сработал, то выполняем нужные действия.
 				// Выбираем события для отправки уведомлений из БД.
+				err := deleteOldEvents(ctx, app)
+				if err != nil {
+					logger.Error("Failed select events for notifications: %v", err)
+					continue
+				}
+
 				events, err := selectEventsForNotifications(ctx, app)
 				if err != nil {
 					logger.Error("Failed select events for notifications: %v", err)
@@ -124,6 +130,11 @@ func selectEventsForNotifications(ctx context.Context, app *AppScheduler) ([]*st
 	}
 
 	return events, nil
+}
+
+func deleteOldEvents(ctx context.Context, app *AppScheduler) error {
+	return app.storage.DeleteOldEvents(ctx)
+
 }
 
 func createNotification(event *storage.Event) storage.Notification {

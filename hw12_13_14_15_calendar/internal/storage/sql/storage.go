@@ -249,12 +249,9 @@ func (s *Storage) ListEventsForMonth(ctx context.Context, startOfMonth time.Time
 
 func (s *Storage) SelectEventsForNotifications(ctx context.Context) ([]*storage.Event, error) {
 	const query = `
-		SELECT id, title, date_time, reminder, duration, description, user_id
+		SELECT id, title, date_time, duration, description, user_id, reminder
 		FROM events
 		WHERE date_trunc('minute', date_time - (reminder * INTERVAL '1 minute')) = date_trunc('minute', NOW());
--- 		SELECT id, title, date_time, duration, description, user_id, reminder
--- 		FROM events
--- 		WHERE user_id = '1234'
 	`
 
 	rows, err := s.db.QueryContext(ctx, query)

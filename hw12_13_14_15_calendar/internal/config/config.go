@@ -1,11 +1,14 @@
 package config
 
-type Config struct {
-	Logger   LoggerConf   `json:"logger"`
-	FilePath string       `json:"file_path"` //nolint:tagliatelle
-	Database DataBaseConf `json:"database"`
-	Net      NetConf      `json:"http"`
-	Storage  StorageConf  `json:"storage"`
+import (
+	"strings"
+
+	"github.com/pkg/errors"
+	"github.com/spf13/viper"
+)
+
+type Configure interface {
+	Init(file string) error
 }
 
 type LoggerConf struct {
@@ -25,33 +28,46 @@ type DataBaseConf struct {
 	Password string `json:"password"`
 }
 
-type NetConf struct {
-	API  string `json:"api"`
+type HTTP struct {
 	Host string `json:"host"`
-	Port uint16 `json:"port"`
+	Port int    `json:"port"`
 }
 
-func NewConfig() Config {
-	return Config{
-		Logger:   LoggerConf{},
-		FilePath: "",
-		Database: DataBaseConf{},
-		Net:      NetConf{},
+type GRPC struct {
+	Host string `json:"host"`
+	Port int    `json:"port"`
+}
+
+type RMQ struct {
+	URI       string `json:"uri"`
+	ReConnect struct {
+		MaxElapsedTime  string  `json:"maxElapsedTime"`
+		InitialInterval string  `json:"initialInterval"`
+		Multiplier      float64 `json:"multiplier"`
+		MaxInterval     string  `json:"maxInterval"`
 	}
 }
 
-func (c *Config) SetFilePath(path string) {
-	c.FilePath = path
+type Queue struct {
+	ExchangeName string `json:"exchangeName"`
+	ExchangeType string `json:"exchangeType"`
+	QueueName    string `json:"queueName"`
+	BindingKey   string `json:"bindingKey"` // Message routing rules
 }
 
-func (c *Config) SetLogLevel(level string) {
-	c.Logger.Level = level
-}
+func Init(file string, c Configure) (Configure, error) {
+	viper.AutomaticEnv()
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
-func (c *Config) SetDataBase(host string, port int, dbname string, username string, password string) {
-	c.Database.Host = host
-	c.Database.Port = port
-	c.Database.Dbname = dbname
-	c.Database.Username = username
-	c.Database.Password = password
+	viper.SetConfigFile(file)
+
+	if err := viper.ReadInConfig(); err != nil {
+		return nil, errors.Wrap(err, "open config file failed")
+	}
+
+	if err := viper.Unmarshal(c); err != nil {
+		return nil, errors.Wrap(err, "unmarshal config file failed")
+	}
+
+	return c, nil
 }

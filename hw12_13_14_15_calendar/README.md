@@ -18,7 +18,10 @@
 ./calendar --config=/configs/config.toml
 ./calendar version
 
-в среде разработки в аргементах указывать --config=configs/config.toml
+для запуска указать:
+./calendar           --config=configs/calendar_config.toml
+./calendar_scheduler --config=configs/scheduler_config.yaml
+./calendar_sender    --config=configs/sender_config.yaml
 
 
 Создание Docker контейнера с PostgreSQL:
@@ -62,6 +65,17 @@ goose create events_and_notifications sql
 
 
 golangci-lint run
+golangci-lint run --fix
+
+
+Запустить rabbitmq:
+$ docker run -d --name rb -p 15672:15672 -p 5672:5672 rabbitmq:3-management 
+docker rm <идентификатор>
+
+Админка rabbitmq:
+http://localhost:15672/ guest:guest
+
+
 ```
 
 В папку docs положила коллекцию для postman и для grpc добавила в docs/for_grpc.md json объектов.

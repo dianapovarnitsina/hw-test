@@ -14,19 +14,19 @@ import (
 )
 
 type Server struct {
-	host   string
-	port   uint16
-	logger interfaces.Logger
-	app    interfaces.Application
-	server *http.Server
+	host    string
+	port    int
+	logger  interfaces.Logger
+	storage interfaces.EventStorage
+	server  *http.Server
 }
 
-func NewServer(host string, port uint16, logger interfaces.Logger, app interfaces.Application) *Server {
+func NewServer(host string, port int, logger interfaces.Logger, storage interfaces.EventStorage) *Server {
 	return &Server{
-		host:   host,
-		port:   port,
-		logger: logger,
-		app:    app,
+		host:    host,
+		port:    port,
+		logger:  logger,
+		storage: storage,
 	}
 }
 
@@ -80,7 +80,7 @@ func (s *Server) createEventHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer r.Body.Close()
 
-	err := s.app.CreateEvent(r.Context(), &event)
+	err := s.storage.CreateEvent(r.Context(), &event)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -99,7 +99,7 @@ func (s *Server) getEventHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, err := s.app.GetEvent(r.Context(), eventID)
+	event, err := s.storage.GetEvent(r.Context(), eventID)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
 		return
@@ -127,7 +127,7 @@ func (s *Server) updateEventHandler(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 
 	if eventID == updatedEvent.ID {
-		s.app.UpdateEvent(r.Context(), &updatedEvent)
+		s.storage.UpdateEvent(r.Context(), &updatedEvent)
 		w.WriteHeader(http.StatusOK)
 		w.Header().Set("Content-Type", "application/json")
 		fmt.Fprintln(w, "Event updated successfully")
@@ -145,7 +145,7 @@ func (s *Server) deleteEventHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := s.app.DeleteEvent(r.Context(), eventID)
+	err := s.storage.DeleteEvent(r.Context(), eventID)
 	if err != nil {
 		if errors.Is(err, storage.ErrEventNotFound) {
 			http.Error(w, "Event not found", http.StatusNotFound)
@@ -174,7 +174,7 @@ func (s *Server) listEventsHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Invalid date format", http.StatusBadRequest)
 			return
 		}
-		events, err = s.app.ListEventsForDay(r.Context(), day)
+		events, err = s.storage.ListEventsForDay(r.Context(), day)
 
 	case len(queryParams["week"]) > 0:
 		weekStr := queryParams["week"][0]
@@ -183,7 +183,7 @@ func (s *Server) listEventsHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Invalid date format", http.StatusBadRequest)
 			return
 		}
-		events, err = s.app.ListEventsForWeek(r.Context(), week)
+		events, err = s.storage.ListEventsForWeek(r.Context(), week)
 
 	case len(queryParams["month"]) > 0:
 		monthStr := queryParams["month"][0]
@@ -192,7 +192,7 @@ func (s *Server) listEventsHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Invalid date format", http.StatusBadRequest)
 			return
 		}
-		events, err = s.app.ListEventsForMonth(r.Context(), month)
+		events, err = s.storage.ListEventsForMonth(r.Context(), month)
 
 	default:
 		http.Error(w, "Invalid query", http.StatusBadRequest)

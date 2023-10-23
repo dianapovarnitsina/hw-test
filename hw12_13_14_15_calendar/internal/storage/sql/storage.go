@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/config"
 	"github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/storage"
 	_ "github.com/lib/pq" // Blank import for side effects
 	"github.com/pressly/goose/v3"
@@ -29,9 +28,9 @@ func (s *Storage) Migrate(ctx context.Context, migrate string) (err error) {
 	return nil
 }
 
-func (s *Storage) Connect(ctx context.Context, conf *config.Config) (err error) {
+func (s *Storage) Connect(ctx context.Context, dbPort int, dbHost, dbUser, dbPassword, dbName string) (err error) {
 	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		conf.Database.Host, conf.Database.Port, conf.Database.Username, conf.Database.Password, conf.Database.Dbname)
+		dbHost, dbPort, dbUser, dbPassword, dbName)
 	s.db, err = sql.Open("postgres", dsn)
 	if err != nil {
 		return fmt.Errorf("cannot open pgx driver: %w", err)
@@ -93,10 +92,7 @@ func (s *Storage) UpdateEvent(ctx context.Context, event *storage.Event) error {
 }
 
 func (s *Storage) DeleteEvent(ctx context.Context, eventID string) error {
-	const query = `
-		DELETE FROM events
-		WHERE id = $1
-	`
+	const query = `DELETE FROM events WHERE id = $1`
 
 	_, err := s.db.ExecContext(ctx, query, eventID)
 	if err != nil {
@@ -249,4 +245,51 @@ func (s *Storage) ListEventsForMonth(ctx context.Context, startOfMonth time.Time
 	}
 
 	return events, nil
+}
+
+func (s *Storage) SelectEventsForNotifications(ctx context.Context) ([]*storage.Event, error) {
+	const query = `
+		SELECT id, title, date_time, duration, description, user_id, reminder
+		FROM events
+		WHERE date_trunc('minute', date_time - (reminder * INTERVAL '1 minute')) = date_trunc('minute', NOW());
+	`
+
+	rows, err := s.db.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var events []*storage.Event
+
+	// Итерируйтесь по результатам запроса и создайте объекты событий.
+	for rows.Next() {
+		event := &storage.Event{}
+		err := rows.Scan(
+			&event.ID,
+			&event.Title,
+			&event.DateTime,
+			&event.Duration,
+			&event.Description,
+			&event.UserID,
+			&event.Reminder,
+		)
+		if err != nil {
+			return nil, err
+		}
+		events = append(events, event)
+	}
+
+	return events, nil
+}
+
+func (s *Storage) DeleteOldEvents(ctx context.Context) error {
+	const query = `DELETE FROM events WHERE date_time < NOW() - INTERVAL '1 year';`
+
+	_, err := s.db.ExecContext(ctx, query)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

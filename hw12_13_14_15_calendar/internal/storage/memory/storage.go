@@ -6,7 +6,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/config"
 	"github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/storage"
 )
 
@@ -21,8 +20,9 @@ func New() *Storage {
 	}
 }
 
-func (s *Storage) Connect(ctx context.Context, conf *config.Config) error {
-	_, _ = ctx, conf
+//nolint:dogsled
+func (s *Storage) Connect(ctx context.Context, dbPort int, dbHost, dbUser, dbPassword, dbName string) error {
+	_, _, _, _, _, _ = ctx, dbPort, dbHost, dbUser, dbPassword, dbName //
 	return nil
 }
 
@@ -144,4 +144,16 @@ func (s *Storage) ListEventsForMonth(ctx context.Context, startOfMonth time.Time
 		}
 	}
 	return eventsForMonth, nil
+}
+
+func (s *Storage) SelectEventsForNotifications(ctx context.Context) ([]*storage.Event, error) {
+	// TODO
+	_ = ctx
+	return nil, nil
+}
+
+func (s *Storage) DeleteOldEvents(ctx context.Context) error {
+	// TODO
+	_ = ctx
+	return nil
 }

@@ -29,9 +29,10 @@ func (s *Storage) Migrate(ctx context.Context, migrate string) (err error) {
 }
 
 func (s *Storage) Connect(ctx context.Context, dbPort int, dbHost, dbUser, dbPassword, dbName string) (err error) {
-	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		dbHost, dbPort, dbUser, dbPassword, dbName)
-	s.db, err = sql.Open("postgres", dsn)
+	connStr := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable",
+		dbUser, dbPassword, dbHost, dbPort, dbName)
+	s.db, err = sql.Open("postgres", connStr)
+
 	if err != nil {
 		return fmt.Errorf("cannot open pgx driver: %w", err)
 	}

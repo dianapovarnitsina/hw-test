@@ -57,3 +57,10 @@ generate:
         --go_out=internal/server/pb \
         --go-grpc_out=internal/server/pb \
         api/*.proto
+
+up:
+	docker-compose up -d
+
+down:
+	docker-compose down
+

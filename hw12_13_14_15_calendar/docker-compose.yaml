@@ -1,0 +1,106 @@
+version: "3"
+
+networks:
+  rabbit:
+    driver: bridge
+  db:
+    driver: bridge
+
+services:
+
+  calendar:
+    container_name: calendar
+    build:
+      context: .
+      dockerfile: build/calendar/Dockerfile
+    depends_on:
+      - postgres
+    restart: on-failure
+    ports:
+      - "8080:8080"
+      - "8082:8082"
+    expose:
+      - 8080
+      - 8082
+    environment:
+      POSTGRES_HOST: composepostgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+      HTTP_HOST: "0.0.0.0"
+      HTTP_PORT: 8080
+      GRPC_HOST: "0.0.0.0"
+      GRPC_PORT: 8082
+    networks:
+      - db
+
+  calendar_scheduler:
+    container_name: scheduler
+    build:
+      context: .
+      dockerfile: build/calendar_scheduler/Dockerfile
+    depends_on:
+      - postgres
+      - rabbit
+      - calendar
+    restart: on-failure
+    environment:
+      POSTGRES_HOST: composepostgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+      RMQ_URI: "amqp://guest:guest@rabbit:5672/"
+    networks:
+      - db
+      - rabbit
+
+  calendar_sender:
+    container_name: sender
+    build:
+      context: .
+      dockerfile: build/calendar_sender/Dockerfile
+    depends_on:
+      - rabbit
+      - calendar
+      - calendar_scheduler
+    restart: on-failure
+    environment:
+      POSTGRES_HOST: composepostgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+      RMQ_URI: "amqp://guest:guest@rabbit:5672/"
+    networks:
+      - db
+      - rabbit
+
+  postgres:
+    container_name: composepostgres
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    expose:
+      - 5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    networks:
+      - db
+
+  rabbit:
+    container_name: composerabbit
+    image: rabbitmq:latest
+    ports:
+      - "15672:15672"
+      - "5672:5672"
+    expose:
+      - 15672
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - rabbit

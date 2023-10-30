@@ -27,6 +27,13 @@ $ envsubst < config_template.json > config.json
 
 HTTP API, например, после запуска должно быть доступно по URL **http://localhost:8888/**.
 
+```text
+cd /Users/diana.povarnitsina/goProjects/hw-test/hw12_13_14_15_calendar
+docker build -t calendar -f ./build/calendar/Dockerfile .
+docker build -t calendar-scheduler -f ./build/calendar_scheduler/Dockerfile .
+docker build -t calendar-sender -f ./build/calendar_sender/Dockerfile .
+```
+
 ### 2) Интеграционное тестирование
 Необходимо:
 * создать отдельный пакет для интеграционных тестов.

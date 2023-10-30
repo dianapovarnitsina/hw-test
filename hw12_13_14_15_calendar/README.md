@@ -76,6 +76,19 @@ docker rm <идентификатор>
 http://localhost:15672/ guest:guest
 
 
+докер
+cd /Users/diana.povarnitsina/goProjects/hw-test/hw12_13_14_15_calendar
+docker build -t calendar -f ./build/calendar/Dockerfile .
+docker build -t calendar-scheduler -f ./build/calendar_scheduler/Dockerfile .
+docker build -t calendar-sender -f ./build/calendar_sender/Dockerfile .
+
+docker-compose up
+docker-compose up -d
+docker-compose down
+
+посмотреть запущенные докер контейнеры:
+docker ps 
+docker container ls
 ```
 
 В папку docs положила коллекцию для postman и для grpc добавила в docs/for_grpc.md json объектов.

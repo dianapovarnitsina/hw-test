@@ -43,6 +43,7 @@ func (s *CalendarSuite) SetupSuite() { //общая настройка для в
 	host := os.Getenv("GRPC_HOST")
 	port := os.Getenv("GRPC_PORT")
 	calendarHost := host + ":" + port
+	//calendarHost := ""
 
 	if calendarHost == "" {
 		calendarHost = "127.0.0.1:8082"
@@ -137,6 +138,26 @@ func (s *CalendarSuite) TestCalendar_CreateEvent() {
 	s.Nil(err, "Expected no error, but got: %v", err)
 }
 
+func (s *CalendarSuite) TestCalendar_CreateEvent_Error() {
+	// Попытка создать событие с недопустимыми данными
+	request := &pb.EventRequest{
+		Event: &pb.Event{
+			Id:          "2",
+			Title:       "", // Пустой заголовок
+			DateTime:    &timestamp.Timestamp{Seconds: time.Now().Unix()},
+			Duration:    60,
+			Description: "Description of the event",
+			UserId:      "1",
+			Reminder:    15,
+		},
+	}
+	response, err := s.client.CreateEvent(s.ctx, request)
+
+	// Проверка на наличие ошибки
+	s.Error(err)
+	s.Nil(response)
+}
+
 func (s *CalendarSuite) TestCalendar_UpdateEvent() {
 	request := &pb.EventRequest{
 		Event: &pb.Event{
@@ -216,4 +237,79 @@ func (s *CalendarSuite) TestCalendar_DeleteEvent() {
 	s.Require().NotNil(response, "Expected a non-nil createdEvent")
 	s.Require().Nil(response.Event, "Expected a non-nil createdEvent")
 	s.Nil(err, "Expected no error, but got: %v", err)
+}
+
+func (s *CalendarSuite) TestCalendar_DeleteNonExistingEvent() {
+	// Попытка удалить несуществующее событие
+	request := &pb.DeleteEventRequest{EventId: "999"} // Несуществующий ID
+	response, err := s.client.DeleteEvent(s.ctx, request)
+
+	// Проверка на отсутствие ошибки и ожидаемый ответ
+	s.NoError(err)
+	s.NotNil(response)
+	s.Nil(response.Event)
+}
+
+func (s *CalendarSuite) TestCalendar_ListEventsForDay() {
+	now := time.Now()
+	endOfDay := now.Add(24 * time.Hour)
+
+	// Запрос на получение событий за день
+	request := &pb.ListEventsRequest{
+		Date: &timestamp.Timestamp{Seconds: now.Unix()},
+	}
+	response, err := s.client.ListEventsForDay(s.ctx, request)
+
+	s.Require().NoError(err)
+	s.Require().NotNil(response)
+
+	// Проверка списка событий за день
+	for _, event := range response.Events {
+		eventDateTime := time.Unix(event.DateTime.Seconds, int64(event.DateTime.Nanos))
+		s.True(eventDateTime.After(now) && eventDateTime.Before(endOfDay),
+			"Event does not belong to the specified day")
+	}
+}
+
+func (s *CalendarSuite) TestCalendar_ListEventsForWeek() {
+	now := time.Now()
+	endOfWeek := now.Add(7 * 24 * time.Hour)
+
+	// Запрос на получение событий за неделю
+	request := &pb.ListEventsRequest{
+		Date: &timestamp.Timestamp{Seconds: now.Unix()},
+	}
+	response, err := s.client.ListEventsForWeek(s.ctx, request)
+
+	s.Require().NoError(err)
+	s.Require().NotNil(response)
+
+	// Проверка списка событий за неделю
+	for _, event := range response.Events {
+		eventDateTime := time.Unix(event.DateTime.Seconds, int64(event.DateTime.Nanos))
+		s.True(eventDateTime.After(now) && eventDateTime.Before(endOfWeek),
+			"Event does not belong to the specified week")
+	}
+}
+
+func (s *CalendarSuite) TestCalendar_ListEventsForMonth() {
+	now := time.Now()
+	firstDayOfMonth := time.Date(now.Year(), now.Month(), 1, 0, 0, 0, 0, time.Local)
+	lastDayOfMonth := firstDayOfMonth.AddDate(0, 1, -1)
+
+	// Запрос на получение событий за месяц
+	request := &pb.ListEventsRequest{
+		Date: &timestamp.Timestamp{Seconds: now.Unix()},
+	}
+	response, err := s.client.ListEventsForMonth(s.ctx, request)
+
+	s.Require().NoError(err)
+	s.Require().NotNil(response)
+
+	// Проверка списка событий за месяц
+	for _, event := range response.Events {
+		eventDateTime := time.Unix(event.DateTime.Seconds, int64(event.DateTime.Nanos))
+		s.True(eventDateTime.After(firstDayOfMonth) && eventDateTime.Before(lastDayOfMonth),
+			"Event does not belong to the specified month")
+	}
 }

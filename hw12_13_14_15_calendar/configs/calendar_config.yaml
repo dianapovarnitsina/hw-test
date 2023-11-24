@@ -11,7 +11,7 @@ grpc:
 
 storage:
   type: postgres #memory / postgres
-  migration: "migrations" # 0
+  migration: "/etc/migrations" # 0
 
 database:
   host: "localhost"

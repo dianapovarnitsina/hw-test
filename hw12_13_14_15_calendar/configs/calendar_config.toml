@@ -11,10 +11,10 @@
 
 [storage]
     type ="postgres" #memory / postgres
-    migration = "migrations" # 0
+    migration = "/etc/migrations"
 
 [database]
-    host = "localhost"
+    host = "postgres"
     port = 5432
     dbname = "postgres"
     username = "postgres"

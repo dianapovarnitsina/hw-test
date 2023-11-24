@@ -57,3 +57,23 @@ generate:
         --go_out=internal/server/pb \
         --go-grpc_out=internal/server/pb \
         api/*.proto
+
+up:
+	docker-compose up -d
+
+down:
+	docker-compose down
+
+integration-tests1:
+	docker-compose up -d
+	go test -v ./test/integrationCalendar_test.go
+	docker-compose down
+
+integration-tests:
+		set -e ;\
+    	docker-compose -f docker-compose.test.yaml up --build -d ;\
+    	test_status_code=0 ;\
+    	docker-compose -f docker-compose.test.yaml run integration_tests go test ./test/integrationCalendar_test.go || test_status_code=$$? ;\
+    	docker-compose -f docker-compose.test.yaml down ;\
+    	echo $$test_status_code ;\
+    	exit $$test_status_code ;

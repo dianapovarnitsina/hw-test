@@ -1,0 +1,67 @@
+version: "3"
+
+networks:
+  db:
+    driver: bridge
+
+services:
+
+  integration_tests:
+    container_name: integration_tests
+    build:
+      context: .
+      dockerfile:  ./test/Dockerfile
+    depends_on:
+      - postgres
+      - calendar
+    environment:
+      POSTGRES_HOST: composepostgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+      GRPC_HOST: calendar
+      GRPC_PORT: 8082
+    networks:
+      - db
+
+  calendar:
+    container_name: calendar
+    build:
+      context: .
+      dockerfile: build/calendar/Dockerfile
+    depends_on:
+      - postgres
+    restart: on-failure
+    ports:
+      - "8080:8080"
+      - "8082:8082"
+    expose:
+      - 8080
+      - 8082
+    environment:
+      POSTGRES_HOST: composepostgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+      HTTP_HOST: "0.0.0.0"
+      HTTP_PORT: 8080
+      GRPC_HOST: "0.0.0.0"
+      GRPC_PORT: 8082
+    networks:
+      - db
+
+  postgres:
+    container_name: composepostgres
+    image: postgres:latest
+    ports:
+      - "5432:5432"
+    expose:
+      - 5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    networks:
+      - db

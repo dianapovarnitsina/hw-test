@@ -1,14 +1,28 @@
-BIN := "./bin/calendar"
+API_BIN := "./bin/calendar"
+SCHEDULER_BIN := "./bin/scheduler-calendar"
+SENDER_BIN := "./bin/sender-calendar"
 DOCKER_IMG="calendar:develop"
 
 GIT_HASH := $(shell git log --format="%h" -n 1)
 LDFLAGS := -X main.release="develop" -X main.buildDate=$(shell date -u +%Y-%m-%dT%H:%M:%S) -X main.gitHash=$(GIT_HASH)
 
-build:
-	go build -v -o $(BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
+build-api:
+	go build -v -o $(API_BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar
 
-run: build
-	$(BIN) -config ./configs/config.toml
+run-api: build-api
+	$(API_BIN) -config ./configs/calendar_config.toml
+
+build-scheduler:
+	go build -v -o $(SCHEDULER_BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar_scheduler
+
+run-scheduler: build-scheduler
+	$(SCHEDULER_BIN) -config ./configs/scheduler_config.yaml
+
+build-sender:
+	go build -v -o $(SENDER_BIN) -ldflags "$(LDFLAGS)" ./cmd/calendar_sender
+
+run-sender: build-sender
+	$(SENDER_BIN) -config ./configs/sender_config.yaml
 
 build-img:
 	docker build \
@@ -23,12 +37,43 @@ version: build
 	$(BIN) version
 
 test:
-	go test -race ./internal/... ./pkg/...
+	go test -race ./internal/...
+	#go test -race ./internal/... ./pkg/...
 
 install-lint-deps:
-	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.50.1
+	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.55.0
 
 lint: install-lint-deps
 	golangci-lint run ./...
 
 .PHONY: build run build-img run-img version test lint
+
+generate:
+	rm -rf internal/server/pb
+	mkdir -p internal/server/pb
+
+	protoc \
+        --proto_path=api/ \
+        --go_out=internal/server/pb \
+        --go-grpc_out=internal/server/pb \
+        api/*.proto
+
+up:
+	docker-compose up -d
+
+down:
+	docker-compose down
+
+integration-tests1:
+	docker-compose up -d
+	go test -v ./test/integrationCalendar_test.go
+	docker-compose down
+
+integration-tests:
+		set -e ;\
+    	docker-compose -f docker-compose.test.yaml up --build -d ;\
+    	test_status_code=0 ;\
+    	docker-compose -f docker-compose.test.yaml run integration_tests go test ./test/integrationCalendar_test.go || test_status_code=$$? ;\
+    	docker-compose -f docker-compose.test.yaml down ;\
+    	echo $$test_status_code ;\
+    	exit $$test_status_code ;

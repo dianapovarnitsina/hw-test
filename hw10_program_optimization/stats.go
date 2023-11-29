@@ -1,11 +1,12 @@
 package hw10programoptimization
 
 import (
-	"encoding/json"
-	"fmt"
+	"bufio"
 	"io"
 	"regexp"
 	"strings"
+
+	"github.com/valyala/fastjson"
 )
 
 type User struct {
@@ -21,45 +22,30 @@ type User struct {
 type DomainStat map[string]int
 
 func GetDomainStat(r io.Reader, domain string) (DomainStat, error) {
-	u, err := getUsers(r)
-	if err != nil {
-		return nil, fmt.Errorf("get users error: %w", err)
-	}
-	return countDomains(u, domain)
+	return countDomains(r, domain)
 }
 
-type users [100_000]User
-
-func getUsers(r io.Reader) (result users, err error) {
-	content, err := io.ReadAll(r)
-	if err != nil {
-		return
-	}
-
-	lines := strings.Split(string(content), "\n")
-	for i, line := range lines {
-		var user User
-		if err = json.Unmarshal([]byte(line), &user); err != nil {
-			return
-		}
-		result[i] = user
-	}
-	return
-}
-
-func countDomains(u users, domain string) (DomainStat, error) {
+func countDomains(r io.Reader, domain string) (DomainStat, error) {
+	re := regexp.MustCompile("\\." + domain)
+	scanner := bufio.NewScanner(r)
 	result := make(DomainStat)
+	p := fastjson.Parser{}
 
-	for _, user := range u {
-		matched, err := regexp.Match("\\."+domain, []byte(user.Email))
+	for scanner.Scan() {
+		line := scanner.Bytes()
+
+		v, err := p.ParseBytes(line)
 		if err != nil {
 			return nil, err
 		}
 
+		email := string(v.GetStringBytes("Email"))
+		domain := strings.ToLower(strings.SplitN(email, "@", 2)[1])
+		matched := re.MatchString(email)
 		if matched {
-			num := result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])]
+			num := result[domain]
 			num++
-			result[strings.ToLower(strings.SplitN(user.Email, "@", 2)[1])] = num
+			result[domain] = num
 		}
 	}
 	return result, nil

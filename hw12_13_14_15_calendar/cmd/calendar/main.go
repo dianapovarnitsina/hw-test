@@ -3,59 +3,73 @@ package main
 import (
 	"context"
 	"flag"
-	"os"
-	"os/signal"
-	"syscall"
-	"time"
+	"fmt"
+	"log"
+	"sync"
 
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/app"
-	"github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/logger"
-	internalhttp "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/server/http"
-	memorystorage "github.com/fixme_my_friend/hw12_13_14_15_calendar/internal/storage/memory"
+	"github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/app/calendar"
+	"github.com/dianapovarnitsina/hw-test/hw12_13_14_15_calendar/internal/config"
+	"github.com/pkg/errors"
 )
 
-var configFile string
+var (
+	calendarConfigFile string
+	wg                 sync.WaitGroup
+)
 
 func init() {
-	flag.StringVar(&configFile, "config", "/etc/calendar/config.toml", "Path to configuration file")
+	flag.StringVar(&calendarConfigFile, "config", "calendar_config.toml", "Path to configuration file")
 }
 
 func main() {
+	if err := mainImpl(); err != nil {
+		log.Fatal(err)
+	}
+}
+
+func mainImpl() error {
+	ctx := context.TODO()
+
 	flag.Parse()
 
 	if flag.Arg(0) == "version" {
 		printVersion()
-		return
+		return fmt.Errorf("version")
 	}
 
-	config := NewConfig()
-	logg := logger.New(config.Logger.Level)
+	if calendarConfigFile == "" {
+		return fmt.Errorf("please set: '--config=<Path to configuration file>'")
+	}
 
-	storage := memorystorage.New()
-	calendar := app.New(logg, storage)
+	conf := new(config.CalendarConfig)
+	if err := conf.Init(calendarConfigFile); err != nil {
+		return errors.Wrap(err, "init config failed")
+	}
 
-	server := internalhttp.NewServer(logg, calendar)
+	// Создание и инициализация приложения
+	app, err := calendar.NewApp(ctx, conf)
+	if err != nil {
+		return fmt.Errorf("failed to create calendarApp: %w", err)
+	}
 
-	ctx, cancel := signal.NotifyContext(context.Background(),
-		syscall.SIGINT, syscall.SIGTERM, syscall.SIGHUP)
-	defer cancel()
+	// Увеличиваем счетчик WaitGroup на 2, так как у нас два сервера
+	wg.Add(2)
 
+	// Отдельные горутины для запуска серверов
 	go func() {
-		<-ctx.Done()
-
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second*3)
-		defer cancel()
-
-		if err := server.Stop(ctx); err != nil {
-			logg.Error("failed to stop http server: " + err.Error())
-		}
+		defer wg.Done()
+		// Ожидаем завершения работы сервера HTTP
+		<-app.GetHTTPServerShutdownSignal()
 	}()
 
-	logg.Info("calendar is running...")
+	go func() {
+		defer wg.Done()
+		// Ожидаем завершения работы сервера gRPC
+		<-app.GetGrpcServerShutdownSignal()
+	}()
 
-	if err := server.Start(ctx); err != nil {
-		logg.Error("failed to start http server: " + err.Error())
-		cancel()
-		os.Exit(1) //nolint:gocritic
-	}
+	// Ожидаем завершения работы всех серверов
+	wg.Wait()
+
+	return nil
 }
